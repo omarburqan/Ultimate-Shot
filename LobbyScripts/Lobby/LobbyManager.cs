@@ -6,7 +6,8 @@ using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
 using System.Collections;
 using System.Collections.Generic;
-
+// a script which is ued to in the lobbymanager to handle add/remove players ,
+//spawn game prefabs ,change scenes ....and the count down panel when all players ready
 namespace Prototype.NetworkLobby
 {
     public class LobbyManager : NetworkLobbyManager
