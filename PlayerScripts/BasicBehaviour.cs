@@ -17,7 +17,7 @@ public class BasicBehaviour : MonoBehaviour
 	private int behaviourLocked;                          // Reference to temporary locked behaviour that forbids override.
 	private Vector3 lastDirection;                        // Last direction the player was moving.
 	private Animator anim;                                // Reference to the Animator component.
-	private ThirdPersonOrbitCamBasic camScript;                // Reference to the third person camera script.
+	private ThirdPersonOrbitCam camScript;                // Reference to the third person camera script.
 	private bool sprint;                                  // Boolean to determine whether or not the player activated the sprint mode.
 	private bool changedFOV;                              // Boolean to store when the sprint action has changed de camera FOV.
 	private int hFloat;                                   // Animator variable related to Horizontal Axis.
@@ -33,7 +33,7 @@ public class BasicBehaviour : MonoBehaviour
 	public float GetV { get { return v; } }
 
 	// Get the player camera script.
-	public ThirdPersonOrbitCamBasic GetCamScript { get { return camScript; } }
+	public ThirdPersonOrbitCam GetCamScript { get { return camScript; } }
 
 	// Get the player's rigid body.
 	public Rigidbody GetRigidBody { get { return rBody; } }
@@ -52,7 +52,7 @@ public class BasicBehaviour : MonoBehaviour
 		anim = GetComponent<Animator> ();
 		hFloat = Animator.StringToHash("H");
 		vFloat = Animator.StringToHash("V");
-		camScript = playerCamera.GetComponent<ThirdPersonOrbitCamBasic> ();
+		camScript = playerCamera.GetComponent<ThirdPersonOrbitCam> ();
 		rBody = GetComponent<Rigidbody> ();
 
 		// Grounded verification variables.
@@ -62,7 +62,6 @@ public class BasicBehaviour : MonoBehaviour
 
 	void Update()
 	{
-       
 		// Store the input axes.
 		h = Input.GetAxis("Horizontal");
 		v = Input.GetAxis("Vertical");

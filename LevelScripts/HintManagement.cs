@@ -23,8 +23,8 @@ public class HintManagement : MonoBehaviour
 	{
 		if((other.gameObject == player) && !used)
 		{
-			manager.SetShowMsg(true);
-			manager.SetMessage(message);
+			manager.setShowMsg(true);
+			manager.setMessage(message);
 			used = true;
 		}
 	}
@@ -33,7 +33,7 @@ public class HintManagement : MonoBehaviour
 	{
 		if(other.gameObject == player)
 		{
-			manager.SetShowMsg(false);
+			manager.setShowMsg(false);
 			Destroy(gameObject);
 		}
 	}
@@ -42,7 +42,7 @@ public class HintManagement : MonoBehaviour
 	{
 		if(message2 != "" && other.gameObject == player && Input.GetKeyDown(changeMessageKey))
 		{
-			manager.SetMessage(message2);
+			manager.setMessage(message2);
 		}
 	}
 }

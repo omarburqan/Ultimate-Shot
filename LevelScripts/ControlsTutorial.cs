@@ -15,6 +15,7 @@ public class ControlsTutorial : MonoBehaviour
 	private GameObject KeyboardCommands;
 	private GameObject gamepadCommands;
 
+
 	void Awake()
 	{
 		style = new GUIStyle();
@@ -41,6 +42,7 @@ public class ControlsTutorial : MonoBehaviour
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = true;
 		}
+
 		KeyboardCommands.SetActive(Input.GetKey(KeyCode.F2));
 		gamepadCommands.SetActive(Input.GetKey(KeyCode.F3) || Input.GetKey(KeyCode.Joystick1Button7));
 	}
@@ -64,12 +66,12 @@ public class ControlsTutorial : MonoBehaviour
 		GUI.Label(textArea, message, style);
 	}
 
-	public void SetShowMsg(bool show)
+	public void setShowMsg(bool show)
 	{
 		showMsg = show;
 	}
 
-	public void SetMessage(string msg)
+	public void setMessage(string msg)
 	{
 		message = msg;
 	}

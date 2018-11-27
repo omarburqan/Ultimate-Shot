@@ -18,21 +18,21 @@ public class MoveBehaviour : GenericBehaviour
 	private bool isColliding;                       // Boolean to determine if the player has collided with an obstacle.
 
 	// Start is always called after any Awake functions.
-	void Start() 
+	void Start()
 	{
 		// Set up the references.
 		jumpBool = Animator.StringToHash("Jump");
 		groundedBool = Animator.StringToHash("Grounded");
-		behaviourManager.GetAnim.SetBool (groundedBool, true);
+		behaviourManager.GetAnim.SetBool(groundedBool, true);
 
 		// Subscribe and register this behaviour as the default behaviour.
-		behaviourManager.SubscribeBehaviour (this);
-		behaviourManager.RegisterDefaultBehaviour (this.behaviourCode);
+		behaviourManager.SubscribeBehaviour(this);
+		behaviourManager.RegisterDefaultBehaviour(this.behaviourCode);
 		speedSeeker = runSpeed;
 	}
 
 	// Update is used to set features regardless the active behaviour.
-	void Update ()
+	void Update()
 	{
 		// Get jump input.
 		if (!jump && Input.GetButtonDown(jumpButton) && behaviourManager.IsCurrentBehaviour(this.behaviourCode) && !behaviourManager.IsOverriding())
@@ -61,7 +61,7 @@ public class MoveBehaviour : GenericBehaviour
 			behaviourManager.LockTempBehaviour(this.behaviourCode);
 			behaviourManager.GetAnim.SetBool(jumpBool, true);
 			// Is a locomotion jump?
-			if(behaviourManager.GetAnim.GetFloat(speedFloat) > 0.1)
+			if (behaviourManager.GetAnim.GetFloat(speedFloat) > 0.1)
 			{
 				// Temporarily change player friction to pass through obstacles.
 				GetComponent<CapsuleCollider>().material.dynamicFriction = 0f;
@@ -136,16 +136,16 @@ public class MoveBehaviour : GenericBehaviour
 		targetDirection = forward * vertical + right * horizontal;
 
 		// Lerp current direction to calculated target direction.
-		if((behaviourManager.IsMoving() && targetDirection != Vector3.zero))
+		if ((behaviourManager.IsMoving() && targetDirection != Vector3.zero))
 		{
-			Quaternion targetRotation = Quaternion.LookRotation (targetDirection);
+			Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
 
 			Quaternion newRotation = Quaternion.Slerp(behaviourManager.GetRigidBody.rotation, targetRotation, behaviourManager.turnSmoothing);
-			behaviourManager.GetRigidBody.MoveRotation (newRotation);
+			behaviourManager.GetRigidBody.MoveRotation(newRotation);
 			behaviourManager.SetLastDirection(targetDirection);
 		}
 		// If idle, Ignore current camera facing and consider last moving direction.
-		if(!(Mathf.Abs(horizontal) > 0.9 || Mathf.Abs(vertical) > 0.9))
+		if (!(Mathf.Abs(horizontal) > 0.9 || Mathf.Abs(vertical) > 0.9))
 		{
 			behaviourManager.Repositioning();
 		}
