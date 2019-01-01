@@ -8,10 +8,10 @@
 - [Project managment](https://github.com/mutasemNidal/Ultimate-Shot/projects/2)
 
 ### Project Diary
-- [Diary page](https://github.com/mutasemNidal/Ultimate-Shot/wiki/Project-Diary)
+- [Diary page](https://github.com/omarburqan/Ultimate-Shot/wiki/Project-Diary)
 
 ### Team Page
-- [Team page](https://github.com/mutasemNidal/Ultimate-Shot/wiki/Team-Page)
+- [Team page](https://github.com/omarburqan/Ultimate-Shot/wiki/Team-Page)
 
 ## About the Game:
 The game in general is a compine between 3rd person shooter and a racing game which allows the shooter to free run in the map in order to accomplish his missions(protect his team-mate and collect powers up ,points by killing the opposite shooters in the other teams).
