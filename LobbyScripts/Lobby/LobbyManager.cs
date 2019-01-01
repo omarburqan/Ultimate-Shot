@@ -6,8 +6,7 @@ using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
 using System.Collections;
 using System.Collections.Generic;
-// a script which is ued to in the lobbymanager to handle add/remove players ,
-//spawn game prefabs ,change scenes ....and the count down panel when all players ready
+
 namespace Prototype.NetworkLobby
 {
     public class LobbyManager : NetworkLobbyManager
@@ -88,6 +87,9 @@ namespace Prototype.NetworkLobby
             DontDestroyOnLoad(gameObject);
 
             SetServerInfo("Offline", "None");
+            
+
+
         }
 
         public override void OnLobbyClientSceneChanged(NetworkConnection conn)
@@ -176,6 +178,7 @@ namespace Prototype.NetworkLobby
         {
             statusInfo.text = status;
             hostInfo.text = host;
+           
         }
 
 
@@ -268,6 +271,7 @@ namespace Prototype.NetworkLobby
         {
             base.OnMatchCreate(success, extendedInfo, matchInfo);
             _currentMatchID = (System.UInt64)matchInfo.networkId;
+        
         }
 
         public override void OnDestroyMatch(bool success, string extendedInfo)
@@ -321,21 +325,28 @@ namespace Prototype.NetworkLobby
         private int NumOfCars = 0;
         public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
         {
-            
             int index = currentPlayers[conn.connectionId];
+
             GameObject[] spawnpoints = GameObject.FindGameObjectsWithTag("SpawnPoints1");
+
             GameObject _temp;
-            if (index == 1)// driver to respawn the manager of car camera 
+            if (index == 1)// if driver 
             {
-                GameObject temp = (GameObject)GameObject.Instantiate(spawnPrefabs[2]);
-                temp.SetActive(true);
-                print(spawnpoints[0].transform);
-                _temp = (GameObject)GameObject.Instantiate(spawnPrefabs[index], spawnpoints[1].transform);
+                _temp = Instantiate(spawnPrefabs[index], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
+                GameObject obj = Instantiate(spawnPrefabs[4]);
+                obj.SetActive(true);
                 NumOfCars++;
                 return _temp;
             }
-            print(spawnpoints[1].transform);
-            _temp = (GameObject)GameObject.Instantiate(spawnPrefabs[index],spawnpoints[1].transform);
+            if (NumOfplayers == 0) // if first shooter to spawn the guns and ...
+            {
+                GameObject temp1 = (GameObject)GameObject.Instantiate(spawnPrefabs[3], spawnpoints[2].transform.position, spawnpoints[2].transform.rotation);
+                NetworkServer.Spawn(temp1);
+                GameObject temp2 = (GameObject)GameObject.Instantiate(spawnPrefabs[2], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
+                NetworkServer.Spawn(temp2);
+            }
+            //spawning the player(shooter)
+            _temp = (GameObject)GameObject.Instantiate(spawnPrefabs[index],spawnpoints[1].transform.position,spawnpoints[1].transform.rotation);
             NumOfplayers++;
             return _temp;
         }
@@ -376,7 +387,6 @@ namespace Prototype.NetworkLobby
 
             if (_lobbyHooks)
                 _lobbyHooks.OnLobbyServerSceneLoadedForPlayer(this, lobbyPlayer, gamePlayer);
-
             return true;
         }
 
