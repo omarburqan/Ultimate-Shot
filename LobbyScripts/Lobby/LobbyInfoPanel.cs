@@ -5,7 +5,6 @@ using System.Collections;
 
 namespace Prototype.NetworkLobby 
 {
-    // script to handle the infopanel
     public class LobbyInfoPanel : MonoBehaviour
     {
         public Text infoText;

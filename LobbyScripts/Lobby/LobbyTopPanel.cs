@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-// a script for the lobby top panel to display some text and back button and visibilty in game.
+
 namespace Prototype.NetworkLobby
 {
     public class LobbyTopPanel : MonoBehaviour

@@ -1733,7 +1733,10 @@ public class RCC_CarControllerV3 : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter (Collision collision){
-		
+		if(collision.gameObject.tag == "Player" || collision.gameObject.tag == "Ragdoll" || collision.gameObject.tag == "Gun" )
+        {
+            return;
+        }
 		if (collision.contacts.Length < 1 || collision.relativeVelocity.magnitude < minimumCollisionForce)
 			return;
 

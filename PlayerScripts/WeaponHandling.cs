@@ -5,10 +5,15 @@ using UnityEngine.Networking;
 
 public class WeaponHandling : NetworkBehaviour
 {
-    private InteractiveWeapon Weapon;
-    private ShootBehaviour Player;
+    public InteractiveWeapon Weapon;
+    public ShootBehaviour Player;
+    public Camera playerCamera;
 
-    
+    // Use this for initialization
+    void Start()
+    {
+
+    }
 
     // Update is called once per frame
     void Update()
@@ -98,26 +103,23 @@ public class WeaponHandling : NetworkBehaviour
     }
     void OnTriggerStay(Collider other)
     {
-        Weapon = other.GetComponent<InteractiveWeapon>();
         Player = this.GetComponent<ShootBehaviour>();
-        if (isLocalPlayer)
+        Weapon = other.GetComponent<InteractiveWeapon>();
+        if (other.tag == "Gun")
         {
-            if (other.tag == "Gun")
-            {
-                Weapon.pickable = true;
-                Weapon.TooglePickupHUD(true);
-            }
+            //Weapon = other.GetComponent<InteractiveWeapon>();
+            Weapon.pickable = true;
+            //Weapon.TooglePickupHUD(true);
         }
-
     }
     private void OnTriggerExit(Collider other)
     {
         if (isLocalPlayer)
         {
-            if (other.tag == "Gun")
+            if (other.tag == "Gun" && Weapon)
             {
                 Weapon.pickable = false;
-                Weapon.TooglePickupHUD(false);
+                //Weapon.TooglePickupHUD(false);
             }
         }
     }
@@ -144,8 +146,8 @@ public class WeaponHandling : NetworkBehaviour
         Player.AddWeapon(Weapon);
         if (!isLocalPlayer)
             return;
-        Weapon.TooglePickupHUD(false);
-        Weapon.Toggle(true);
+        //Weapon.TooglePickupHUD(false);
+        //Weapon.Toggle(true);
 
     }
     /*****************************************/
@@ -215,10 +217,59 @@ public class WeaponHandling : NetworkBehaviour
             playsound1();
         }
     }
+    [Client]
     public void playsound1()
     {
+        float shotErrorRate = 0.02f;
+        int shotMask = shotMask = ~((1 << LayerMask.NameToLayer("Ignore Shot")) | 1 << LayerMask.NameToLayer("Ignore Raycast"));
+        // Cast the shot to find a target.
+        Vector3 imprecision = Random.Range(-shotErrorRate, shotErrorRate) * playerCamera.transform.right;
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward + imprecision);
+        RaycastHit hit = default(RaycastHit);
+        // Target was hit.
+        if (Physics.Raycast(ray, out hit, 1000f, shotMask))
+        {
+
+            if (hit.collider.transform != this.transform)
+            {
+                // Handle shot effects on target.
+                //Player.DrawShoot(Player.getWeapons()[Player.getActiveWeapon()].gameObject, hit.point, hit.normal, hit.collider.transform);
+                this.setFlash(Player.getMuzzle(),hit.point);
+                // Call the damage behaviour of target if exists.
+                if (hit.collider.gameObject.GetComponent<HealthManager>() ||
+                    hit.collider.gameObject.GetComponent<CarHealthManager>()
+                    )
+                {
+                    //hit.collider.gameObject.GetComponent<HealthManager>().TakeDamage(hit.point, ray.direction, Player.getWeapons()[Player.getActiveWeapon()].bulletDamage);
+                    CmdTelltheServer(hit.collider.name, this.Player.getWeapons()[Player.getActiveWeapon()].bulletDamage,this.name, hit.point);
+                }
+            }
+        }
+        // No target was hit.
+        else
+        {
+            Vector3 destination = (ray.direction * 500f) - ray.origin;
+            // Handle shot effects without a specific target.
+            //Player.DrawShoot(Player.getWeapons()[Player.getActiveWeapon()].gameObject, destination, Vector3.up, null, false, false);
+            this.setFlash(playerCamera.transform, hit.point);
+        }
         Player.getWeapons()[Player.getActiveWeapon()].OnShooting();
+
     }
+    [Command]
+    void CmdTelltheServer(string playerID,float damage,string Name,Vector3 direction)
+    {
+        if (playerID.IndexOf("Driver") == -1) { // in case of shooting player(Shooter)
+            HealthManager _player =GameManager.instance.getPlayer(playerID);
+            _player.TakeDamage(damage,Name);
+        }
+        else if (playerID.IndexOf("Driver") != -1)
+        {
+            CarHealthManager _driver = GameManager.instance.getDriver(playerID);
+            _driver.TakeDamage(damage, Name,direction);
+        }
+    }
+
     public void playsound()
     {
         playsound1();
@@ -362,4 +413,5 @@ public class WeaponHandling : NetworkBehaviour
             CmdRemoveFlash();
         }
     }
+
 }

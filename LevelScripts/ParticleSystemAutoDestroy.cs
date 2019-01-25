@@ -16,9 +16,10 @@ public class ParticleSystemAutoDestroy : MonoBehaviour
 		// Check if lifetime has ended to destroy it.
 		if (ps)
 		{
+           
 			if (!ps.IsAlive())
 			{
-				Destroy(gameObject);
+                Destroy(gameObject);
 			}
 		}
 	}

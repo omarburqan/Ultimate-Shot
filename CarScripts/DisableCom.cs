@@ -1,31 +1,31 @@
-﻿
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-[RequireComponent(typeof(HealthManager))]
-public class NetwrokBehaviour : NetworkBehaviour
-{
+
+public class DisableCom : NetworkBehaviour {
     [SerializeField]
     public Behaviour[] ComToDisable;
-    public Canvas ShooterScore;
+    public Canvas CarScore;
     public Canvas PlayerUI;
-    void Start()
-    {
+
+    void Start () {
         if (!isLocalPlayer)
         {
             for (int i = 0; i < ComToDisable.Length; i++)
             {
                 ComToDisable[i].enabled = false;
             }
-            ShooterScore.enabled = false;
+            CarScore.enabled = false;
             PlayerUI.enabled = false;
         }
-        string _playerID = "Player " + GetComponent<NetworkIdentity>().netId;
+        string _playerID = "Driver " + GetComponent<NetworkIdentity>().netId;
         this.transform.name = _playerID;
-        GameManager.instance.RegisterPlayer(this.transform.name, GetComponent<HealthManager>());
+        GameManager.instance.RegisterDriver(this.transform.name, GetComponent<CarHealthManager>());
     }
-  
+
     private void OnDisable()
     {
-        GameManager.instance.UnRegisterPlayer(transform.name);
+        GameManager.instance.UnRegisterDriver(transform.name);
     }
 }

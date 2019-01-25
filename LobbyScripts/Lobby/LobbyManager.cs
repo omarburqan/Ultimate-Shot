@@ -53,27 +53,7 @@ namespace Prototype.NetworkLobby
 
         protected LobbyHook _lobbyHooks;
        
-       /* public void dropdownIndexChanged(int x)
-        {
-            /* if (x == 0)
-             {
-                 this.index = 0;
-                 print(index);
-                 print("shooter");
-                 //s_Singleton.gamePlayerPrefab = s_Singleton.spawnPrefabs[0];//
-             }
-             else if (x == 1)
-             {
-                 this.index = 1;
-                 print("driver");
-                 print(index);
-
-                 //s_Singleton.gamePlayerPrefab = s_Singleton.spawnPrefabs[1];//
-             }
-            print(x);
-            print(GetComponent<NetworkIdentity>().connectionToClient);
-            s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient, x);
-        }*/
+       
         
         void Start()
         {
@@ -301,53 +281,107 @@ namespace Prototype.NetworkLobby
         //we want to disable the button JOIN if we don't have enough player
         //But OnLobbyClientConnect isn't called on hosting player. So we override the lobbyPlayer creation
 
-        Dictionary<int, int> currentPlayers = new Dictionary<int, int>();
-
+        public Dictionary<int, int> currentPlayers = new Dictionary<int, int>();
+        public Dictionary<int, int> playerTeam = new Dictionary<int, int>();
         public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
         {
+            print("ssss");
             if (!currentPlayers.ContainsKey(conn.connectionId))
                 currentPlayers.Add(conn.connectionId, 0);
+            if (!playerTeam.ContainsKey(conn.connectionId))
+                playerTeam.Add(conn.connectionId, 0);
 
             return base.OnLobbyServerCreateLobbyPlayer(conn, playerControllerId);
         }
+        public void SetPlayerTeam(NetworkConnection conn, int _type)
+        {
+            if (conn == null)
+            {
+                print("conn null");
+                return;
+            }
 
+            if (playerTeam.ContainsKey(conn.connectionId))
+            {
+                playerTeam[conn.connectionId] = _type;
+            }
+            else
+            {
+                playerTeam.Add(conn.connectionId, _type);
+            }
+        }
         public void SetPlayerTypeLobby(NetworkConnection conn, int _type)
         {
-            if (currentPlayers.ContainsKey(conn.connectionId)) { 
+            if (conn == null)
+            {
+                print("conn null");
+                return;
+            }
+               
+            if (currentPlayers.ContainsKey(conn.connectionId))
+            { 
                 currentPlayers[conn.connectionId] = _type;
             }
             else
             {
-                currentPlayers.Add(conn.connectionId, _type);
+                currentPlayers.Add(conn.connectionId,_type);
             }
         }
         private int NumOfplayers = 0;
         private int NumOfCars = 0;
+        string mapName = " ";
         public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
         {
             int index = currentPlayers[conn.connectionId];
-
+            int TeamIndex = playerTeam[conn.connectionId];
             GameObject[] spawnpoints = GameObject.FindGameObjectsWithTag("SpawnPoints1");
-
-            GameObject _temp;
-            if (index == 1)// if driver 
+            GameObject[] spawnpoints2 = GameObject.FindGameObjectsWithTag("SpawnPoints2");
+            GameObject _temp = spawnPrefabs[0];
+            if (NumOfplayers == 0 && NumOfCars==0) // if first player to spawn the guns and map
             {
-                _temp = Instantiate(spawnPrefabs[index], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
-                GameObject obj = Instantiate(spawnPrefabs[4]);
-                obj.SetActive(true);
+                mapName = getRandomMap();
+                if (mapName.Equals("map1"))
+                {
+                    GameObject temp1 = Instantiate(spawnPrefabs[3], spawnpoints[2].transform.position, spawnpoints[2].transform.rotation);
+                    NetworkServer.Spawn(temp1);
+                    GameObject temp2 = Instantiate(spawnPrefabs[2], spawnpoints[1].transform.position, spawnpoints[1].transform.rotation);
+                    NetworkServer.Spawn(temp2);
+                }
+                else if (mapName.Equals("map2"))
+                {
+                    GameObject temp1 = Instantiate(spawnPrefabs[3], spawnpoints2[2].transform.position, spawnpoints2[2].transform.rotation);
+                    NetworkServer.Spawn(temp1);
+                    GameObject temp2 = Instantiate(spawnPrefabs[2], spawnpoints2[1].transform.position, spawnpoints2[1].transform.rotation);
+                    NetworkServer.Spawn(temp2);
+                }
+            }
+            if (index == 1)// spawning the player(driver)
+            {
+                if (mapName.Equals("map1")) {
+                    _temp = Instantiate(spawnPrefabs[index], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
+                    _temp.GetComponent<CarHealthManager>().Team = TeamIndex + 1;
+                }
+                else if (mapName.Equals("map2"))
+                {
+                    _temp = Instantiate(spawnPrefabs[index], spawnpoints2[0].transform.position, spawnpoints2[0].transform.rotation);
+                    _temp.GetComponent<CarHealthManager>().Team = TeamIndex + 1;
+                }
                 NumOfCars++;
-                return _temp;
             }
-            if (NumOfplayers == 0) // if first shooter to spawn the guns and ...
+            else if (index == 0) //spawning the player(shooter)
             {
-                GameObject temp1 = (GameObject)GameObject.Instantiate(spawnPrefabs[3], spawnpoints[2].transform.position, spawnpoints[2].transform.rotation);
-                NetworkServer.Spawn(temp1);
-                GameObject temp2 = (GameObject)GameObject.Instantiate(spawnPrefabs[2], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
-                NetworkServer.Spawn(temp2);
+                if (mapName.Equals("map1"))
+                {
+                    _temp = Instantiate(spawnPrefabs[index], spawnpoints[1].transform.position, spawnpoints[1].transform.rotation);
+                    _temp.GetComponent<HealthManager>().Team = TeamIndex + 1;
+                }
+                else if (mapName.Equals("map2"))
+                {
+                    _temp = Instantiate(spawnPrefabs[index], spawnpoints2[1].transform.position, spawnpoints2[1].transform.rotation);
+                    _temp.GetComponent<HealthManager>().Team = TeamIndex + 1;
+                }
+                NumOfplayers++;
             }
-            //spawning the player(shooter)
-            _temp = (GameObject)GameObject.Instantiate(spawnPrefabs[index],spawnpoints[1].transform.position,spawnpoints[1].transform.rotation);
-            NumOfplayers++;
             return _temp;
         }
 
@@ -471,6 +505,19 @@ namespace Prototype.NetworkLobby
         {
             ChangeTo(mainMenuPanel);
             infoPanel.Display("Client error : " + (errorCode == 6 ? "timeout" : errorCode.ToString()), "Close", null);
+        }
+
+        public string  getRandomMap()
+        {
+            GameObject[] myArray = new GameObject[2];
+            myArray[0] = Resources.Load("map1") as GameObject;
+            myArray[1] = Resources.Load("map2") as GameObject;
+            GameObject element = myArray[Random.Range(0, myArray.Length)] as GameObject;
+            GameObject temp3 = Instantiate(element);
+            NetworkServer.Spawn(temp3);
+            return element.name;
+
+
         }
     }
 

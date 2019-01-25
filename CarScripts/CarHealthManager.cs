@@ -10,100 +10,146 @@ public class CarHealthManager : NetworkBehaviour
     public GameObject FireEffect;
     public GameObject Explosion;
     public GameObject Front;
-
-    private float Healthpoints;
+    public AudioClip[] ExplosionSound;
+    [SyncVar]
+    private float Healthpoints = 100;
+    [SerializeField]
+    private float maxHealth = 100;
+    [SerializeField]
+    public RectTransform HealthBar;
+    private bool SyncTeams = false;
     private bool HasSmoke;
-    private bool HasExtraSmoke;
     private bool HasFire;
     private bool Exploded;
+    public GameObject BurntCar;
+    [SerializeField]
+    public int Team;
     private void Start()
     {
         if (!isLocalPlayer)
             return;
-        this.Healthpoints = 100;
+        this.Healthpoints = maxHealth;
         this.HasSmoke = false;
-        this.HasExtraSmoke = false;
         this.HasFire = false;
         this.Exploded = false;
-        
+        StartCoroutine(DelaySeconds());
+        GameManager.instance.startLaps();
     }
-    // Update is called once per frame
-    void Update()
+    [ClientRpc]
+    private void RpcSyncPlayerTeam(int team)
     {
-        if (!isLocalPlayer)
-            return;
-        if (Input.GetKeyDown(KeyCode.J))
+        if (!isServer && !isLocalPlayer)
         {
-            MakeBigExplosion();
+            this.Team = team;
         }
     }
-   
-    private void OnParticleCollision(GameObject other)
+    [Command]
+    private void CmdSyncPlayerTeam(int team)
+    {
+        if (isServer)
+        {
+            this.Team = team;
+        }
+        RpcSyncPlayerTeam(team);
+    }
+    private void Update()
     {
         if (!isLocalPlayer)
             return;
-        print("hit");
-        if (other.gameObject.tag == "M4A1")
+        if (!Exploded)
         {
-            print("hitss");
-            this.Healthpoints -= 15;
-            if (Healthpoints <= 75 && !HasSmoke)
+            SetHealthAmout(this.Healthpoints / maxHealth);
+            CheckHealth();
+        }
+        if (SyncTeams)
+        {
+            if (isServer)
             {
-                this.HasSmoke = true;
-                MakeEffects();
-                if (isServer)
-                {
-                    RpcMakeEffects();
-                }
-                else
-                {
-                    CmdMakeEffects();
-                }
+                RpcSyncPlayerTeam(this.Team);
             }
-            if (Healthpoints <= 50 && !HasExtraSmoke)
+            else
             {
-                this.HasExtraSmoke = true;
-                MakeEffects();
-                if (isServer)
-                {
-                    RpcMakeEffects();
-                }
-                else
-                {
-                    CmdMakeEffects();
-                }
+                CmdSyncPlayerTeam(this.Team);
             }
-            /*************************************/
-            if (Healthpoints <= 25 && !HasFire)
-            {
-                this.HasFire = true;
-                MakeSmallExplosion();
-                if (isServer)
-                {
-                   RpcMakeSmallExplosion();
-                }
-                else
-                {
-                    CmdMakeSmallExplosion();
-                }
-            }
-            /***********************************/
-            if(Healthpoints <= 0 && !Exploded)
-            {
-                this.Exploded = true;
-                MakeBigExplosion();
-                if (isServer)
-                {
-                    RpcMakeBigExplosion();
-                }
-                else
-                {
-                    CmdMakeBigExplosion();
-                }
-            }
+            this.SyncTeams = false;
+        }
+    }
 
+    private void SetHealthAmout(float Amount)
+    {
+        if (Amount < 0)
+            Amount = 0;
+        HealthBar.localScale = new Vector3(1f, Amount, 1f);
+    }
+    public void TakeDamage(float damage, string Killer,Vector3 direction)
+    {
+        if(this.Healthpoints <= 0)
+        {
+            return;
+        }
+        this.Healthpoints -= damage/2;
+        RpcAddForce(direction);
+        print(this.transform.name + " " + Healthpoints);
+        if (Healthpoints < 1)
+        {
+            RpcEditScore(Killer);
         }
     }
+    [ClientRpc]
+    void RpcAddForce(Vector3 direction)
+    {
+        this.GetComponent<Rigidbody>().AddForce(direction * 3f, ForceMode.Impulse);
+    }
+    [ClientRpc]
+    void RpcEditScore(string Killer)
+    {
+        HealthManager player= GameManager.instance.getPlayer(Killer);
+        player.Kills+=3;
+        player.KillScore.text = player.Kills.ToString();
+    }
+    /****************************************/
+     private void CheckHealth()
+     {
+        if (Healthpoints <= 60 && !HasSmoke)
+        {
+            this.HasSmoke = true;
+            MakeEffects();
+            if (isServer)
+            {
+                RpcMakeEffects();
+            }
+            else
+            {
+                CmdMakeEffects();
+            }
+        }
+        if (Healthpoints <= 25 && !HasFire)
+        {
+            this.HasFire = true;
+            MakeSmallExplosion();
+            if (isServer)
+            {
+            RpcMakeSmallExplosion();
+            }
+            else
+            {
+                CmdMakeSmallExplosion();
+            }
+        }
+        if(Healthpoints <= 0 && !Exploded)
+        {
+            this.Exploded = true;
+            MakeBigExplosion();
+            if (isServer)
+            {
+                RpcMakeBigExplosion();
+            }
+            else
+            {
+                CmdMakeBigExplosion();
+            }
+        }
+     }
     /******************************************************/
     [Command]
     void CmdMakeEffects()
@@ -124,7 +170,6 @@ public class CarHealthManager : NetworkBehaviour
     }
     void MakeEffects()
     {
-
         GameObject instantShot = Instantiate(SmokeEffect, Front.transform.position, Front.transform.rotation);
         instantShot.SetActive(true);
         instantShot.transform.SetParent(this.transform);
@@ -149,12 +194,11 @@ public class CarHealthManager : NetworkBehaviour
     }
     void MakeSmallExplosion()
     {
-
+        AudioSource.PlayClipAtPoint(ExplosionSound[0], transform.position, 50f);
         GameObject instantShot = Instantiate(FireEffect, Front.transform.position, Front.transform.rotation);
         instantShot.SetActive(true);
         instantShot.transform.SetParent(this.transform);
-        StartCoroutine(Example(instantShot));
-        Destroy(instantShot);
+        Destroy(instantShot, 1.5f);
     }
     /*****************************/
     [Command]
@@ -176,17 +220,17 @@ public class CarHealthManager : NetworkBehaviour
     }
     void MakeBigExplosion()
     {
+        AudioSource.PlayClipAtPoint(ExplosionSound[1], transform.position, 50f);
         GameObject instantShot = Instantiate(Explosion, Front.transform.position, Front.transform.rotation);
         instantShot.SetActive(true);
         instantShot.transform.SetParent(this.transform);
-        StartCoroutine(Example(instantShot));
+        Destroy(instantShot, 3);
     }
     /*************************************/
-    IEnumerator Example(GameObject obj)
+    IEnumerator DelaySeconds()
     {
-        yield return new WaitForSeconds(2.5f);
-        Destroy(obj);
-       
+        yield return new WaitForSeconds(10);
+        this.SyncTeams = true;
     }
 }
 

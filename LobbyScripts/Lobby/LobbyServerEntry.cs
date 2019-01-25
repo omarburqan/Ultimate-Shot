@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.Networking.Types;
 using System.Collections;
-// a script when you enter a specified server
+
 namespace Prototype.NetworkLobby
 {
     public class LobbyServerEntry : MonoBehaviour 

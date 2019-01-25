@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.Networking;
 // This class corresponds to any in-game weapon interactions.
+[System.Serializable]
 public class InteractiveWeapon : NetworkBehaviour
 {
     public string label;                                      // The weapon name. Same name will treat weapons as same regardless game object's name.
@@ -30,8 +31,8 @@ public class InteractiveWeapon : NetworkBehaviour
     [SerializeField]
     private int mag, totalBullets;                            // Current mag capacity and total amount of bullets being carried.
     private int fullMag, maxBullets;                          // Default mag capacity and total bullets for reset purposes.
-    private GameObject player, gameController;                // References to the player and the game controller.
-    private ShootBehaviour playerInventory;                   // Player's inventory to store weapons.
+    private GameObject gameController;                // References to the player and the game controller.
+    //private ShootBehaviour playerInventory;                   // Player's inventory to store weapons.
     //private SphereCollider interactiveRadius;                 // In-game radius of interaction with player.
     public BoxCollider col;                                  // Weapon collider.
     public Rigidbody rbody;                                  // Weapon rigidbody.
@@ -48,8 +49,8 @@ public class InteractiveWeapon : NetworkBehaviour
         {
             t.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
         }
-        player = GameObject.FindGameObjectWithTag("Player"); // null because player isn't exist yet;
-        playerInventory = player.GetComponent<ShootBehaviour>();
+        //player = GameObject.FindGameObjectWithTag("Player"); // null because player isn't exist yet;
+        //playerInventory = player.GetComponent<ShootBehaviour>();
         gameController = GameObject.FindGameObjectWithTag("GameController");
         // Assert that exists a on-screen HUD.
         if (GameObject.Find("ScreenHUD") == null)
@@ -110,13 +111,13 @@ public class InteractiveWeapon : NetworkBehaviour
     }
 
     // Handle weapon collision with environment.
-    private void OnCollisionEnter(Collision collision)
+   /* private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.gameObject.tag != "Player" && Vector3.Distance(transform.position, player.transform.position) <= 5f)
         {
             AudioSource.PlayClipAtPoint(dropSound, transform.position, 0.5f);
         }
-    }
+    }*/
     public void OnShooting()
     {
         AudioSource.PlayClipAtPoint(shotSound, transform.position, 5f);
@@ -143,7 +144,7 @@ public class InteractiveWeapon : NetworkBehaviour
     }*/
 
     // Draw in-game weapon pickup label.
-    public void TooglePickupHUD(bool toogle)
+    /*public void TooglePickupHUD(bool toogle)
     {
         pickupHUD.gameObject.SetActive(toogle);
         if (toogle)
@@ -155,7 +156,7 @@ public class InteractiveWeapon : NetworkBehaviour
             pickupHUD.Find("Label").GetComponent<Text>().text = "Pick " + this.gameObject.name;
         }
 
-    }
+    }*/
 
     // Manage weapon active status.
     public void Toggle(bool active)

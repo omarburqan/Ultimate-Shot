@@ -253,7 +253,15 @@ public class ThirdPersonOrbitCam : MonoBehaviour
     // Double check for collisions: concave objects doesn't detect hit from outside, so cast in both directions.
     bool DoubleViewingPosCheck(Vector3 checkPos, float offset)
     {
-        float playerFocusHeight = player.GetComponent<CapsuleCollider>().height * 0.5f;
+        float playerFocusHeight = 0f;
+        if (player.GetComponent<CapsuleCollider>()) { 
+            playerFocusHeight = player.GetComponent<CapsuleCollider>().height * 0.5f;
+        }
+        else
+        {
+            playerFocusHeight = 3 * 0.5f;
+        }
+         
         return ViewingPosCheck(checkPos, playerFocusHeight) && ReverseViewingPosCheck(checkPos, playerFocusHeight, offset);
     }
 
@@ -266,7 +274,7 @@ public class ThirdPersonOrbitCam : MonoBehaviour
         if (Physics.Raycast(checkPos, player.position + (Vector3.up * deltaPlayerHeight) - checkPos, out hit, relCameraPosMag))
         {
             // ... if it is not the player...
-            if (hit.transform != player && !hit.transform.GetComponent<Collider>().isTrigger)
+            if (hit.transform != player && hit.transform.GetComponent<Collider>()  && !hit.transform.GetComponent<Collider>().isTrigger)
             {
                 // This position isn't appropriate.
                 return false;
@@ -283,7 +291,7 @@ public class ThirdPersonOrbitCam : MonoBehaviour
 
         if (Physics.Raycast(player.position + (Vector3.up * deltaPlayerHeight), checkPos - player.position, out hit, maxDistance))
         {
-            if (hit.transform != player && hit.transform != transform && !hit.transform.GetComponent<Collider>().isTrigger)
+            if (hit.transform != player && hit.transform != transform && hit.transform.GetComponent<Collider>()  && !hit.transform.GetComponent<Collider>().isTrigger )
             {
                 return false;
             }

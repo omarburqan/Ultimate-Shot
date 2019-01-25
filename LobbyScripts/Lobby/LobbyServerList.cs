@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using System.Collections;
 using System.Collections.Generic;
-// a script to get all the opened server and display it 
+
 namespace Prototype.NetworkLobby
 {
     public class LobbyServerList : MonoBehaviour

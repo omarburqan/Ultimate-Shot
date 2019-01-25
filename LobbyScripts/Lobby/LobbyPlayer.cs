@@ -20,7 +20,12 @@ namespace Prototype.NetworkLobby
         public Button readyButton;
         public Button waitingPlayerButton;
         public Button removePlayerButton;
-
+        [SyncVar(hook = "OnMyCharacterSelect")]
+        public int value = 0;
+        [SyncVar(hook = "OnTeamSelect")]
+        public int TeamValue = 0;
+        public Dropdown Dropdown;
+        public Dropdown DropdownTeam;
         public GameObject localIcone;
         public GameObject remoteIcone;
 
@@ -33,32 +38,106 @@ namespace Prototype.NetworkLobby
         public Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         public Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
 
-        static Color JoinColor = new Color(255.0f/255.0f, 0.0f, 101.0f/255.0f,1.0f);
+        static Color JoinColor = new Color(255.0f / 255.0f, 0.0f, 101.0f / 255.0f, 1.0f);
         static Color NotReadyColor = new Color(34.0f / 255.0f, 44 / 255.0f, 55.0f / 255.0f, 1.0f);
         static Color ReadyColor = new Color(0.0f, 204.0f / 255.0f, 204.0f / 255.0f, 1.0f);
         static Color TransparentColor = new Color(0, 0, 0, 0);
         //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
-        [Command]
+
         public void CmddropdownIndexChanged(int x)
         {
-            /*if (x == 0)
-             {
-                 this.index = 0;
-                 print(index);
-                 print("shooter");
-             }
-             else if (x == 1)
-             {
-                 this.index = 1;
-                 print("driver");
-                 print(index);
-             }*/
-            print(x);
-            print(GetComponent<NetworkIdentity>().connectionToClient);
-            LobbyManager.s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient,x);
+            if (!isLocalPlayer)
+                return;
+            if (isServer)
+            {
+                OnMyCharacterSelect(x);
+                LobbyManager.s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient, x);
+                Rpctellother(x);
+            }
+            else
+            {
+                CmdOnMyCharacterSelect(x);
+                LobbyManager.s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient, x);
+                Cmdtellother(x);
+            }
         }
-       
+        [Command]
+        void Cmdtellother(int x)
+        {
+            if (isServer)
+            {
+                LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
+            }
+            Rpctellother(x);
+        }
+        [Client]
+        void Rpctellother(int x)
+        {
+            if(!isLocalPlayer && !isServer)
+            {
+                LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
+            }
+        }
+        /*****************************/
+        public void TeamSelect(int x)
+        {
+            if (!isLocalPlayer)
+                return;
+            if (isServer)
+            {
+                OnTeamSelect(x);
+                LobbyManager.s_Singleton.SetPlayerTeam(GetComponent<NetworkIdentity>().connectionToClient, x);
+                Rpctellother1(x);
+            }
+            else
+            {
+                CmdOnTeamSelect(x);
+                LobbyManager.s_Singleton.SetPlayerTeam(GetComponent<NetworkIdentity>().connectionToClient, x);
+                Cmdtellother1(x);
+            }
+        }
+        [Command]
+        void Cmdtellother1(int x)
+        {
+            if (isServer)
+            {
+                LobbyManager.s_Singleton.SetPlayerTeam(this.GetComponent<NetworkIdentity>().connectionToClient, x);
+            }
+            Rpctellother1(x);
+        }
+        [Client]
+        void Rpctellother1(int x)
+        {
+            if (!isLocalPlayer && !isServer)
+            {
+                LobbyManager.s_Singleton.SetPlayerTeam(this.GetComponent<NetworkIdentity>().connectionToClient, x);
+            }
+        }
+        /***********************************/
+        [Command]
+        void CmdOnMyCharacterSelect(int index)
+        {
+            OnMyCharacterSelect(index);
+            
+        }
+        void OnMyCharacterSelect(int index)
+        {
+            value = index;
+            Dropdown.value = index;
+        }
+        [Command]
+        void CmdOnTeamSelect(int index)
+        {
+            OnTeamSelect(index);
+
+        }
+        void OnTeamSelect(int index)
+        {
+            TeamValue = index;
+            DropdownTeam.value = index;
+        }
+        /*************************************/
         public override void OnClientEnterLobby()
         {
             base.OnClientEnterLobby();
@@ -82,6 +161,7 @@ namespace Prototype.NetworkLobby
             OnMyName(playerName);
             OnMyColor(playerColor);
         }
+        
 
         public override void OnStartAuthority()
         {
@@ -112,12 +192,15 @@ namespace Prototype.NetworkLobby
 
             readyButton.transform.GetChild(0).GetComponent<Text>().text = "...";
             readyButton.interactable = false;
-
+            Dropdown.interactable = false;
+            DropdownTeam.interactable = false;
             OnClientReady(false);
         }
 
         void SetupLocalPlayer()
         {
+            Dropdown.interactable = true;
+            DropdownTeam.interactable = true;
             nameInput.interactable = true;
             remoteIcone.gameObject.SetActive(false);
             localIcone.gameObject.SetActive(true);
@@ -196,6 +279,7 @@ namespace Prototype.NetworkLobby
         public void OnPlayerListChanged(int idx)
         { 
             GetComponent<Image>().color = (idx % 2 == 0) ? EvenRowColor : OddRowColor;
+
         }
 
         ///===== callback from sync var

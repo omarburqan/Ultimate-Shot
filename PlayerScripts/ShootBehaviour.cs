@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 // ShootBehaviour inherits from GenericBehaviour. This class corresponds to shoot/reload/change/add/drop weapons behaviour.
@@ -16,7 +15,7 @@ public class ShootBehaviour : GenericBehaviour
     public GameObject muzzleFlash, shot, sparks;                   // Game objects for shot effects.
     public Material bulletHole;                                    // Material for the bullet hole placed on target shot.
     public int maxBulletHoles = 50;                                // Max bullet holes to draw on scene.
-    public float shotErrorRate = 0.02f;                            // Shooting error margin. 0 is most acurate.
+                         // Shooting error margin. 0 is most acurate.
     public float shotRateFactor = 1f;                              // Rate of fire parameter. Higher is faster rate.
     public float armsRotation = 8f;                                // Rotation of arms to align with aim, according player heigh.
     private bool pickup = false;
@@ -35,7 +34,7 @@ public class ShootBehaviour : GenericBehaviour
         reloadBool;                                                // Animator variable related to reloading.
     private bool isAiming,                                         // Boolean to get whether or not the player is aiming.
         isAimBlocked;                                              // Boolean to determine whether or not the aim is blocked.
-    private Transform gunMuzzle,gunMuzzle2;                                   // World position of the gun muzzle.
+    private Transform gunMuzzle, gunMuzzle2;                                   // World position of the gun muzzle.
     private float distToHand;                                      // Distance from neck to hand.
     private Vector3 castRelativeOrigin;                            // Position of neck to cast for blocked aim test.
     private Dictionary<InteractiveWeapon.WeaponType, int> slotMap; // Map to designate weapon types to inventory slots.
@@ -120,7 +119,7 @@ public class ShootBehaviour : GenericBehaviour
         bulletHoles = new List<GameObject>();
 
         // Hide shot effects on scene.
-        
+
 
         // Create weapon slots. Different weapon types can be added in the same slot - ex.: (LONG_SPECIAL, 2) for a rocket launcher.
         slotMap = new Dictionary<InteractiveWeapon.WeaponType, int>
@@ -150,7 +149,7 @@ public class ShootBehaviour : GenericBehaviour
         shotDecay = originalShotDecay;
         castRelativeOrigin = neck.position - this.transform.position;
         distToHand = (rightHand.position - neck.position).magnitude * 1.5f;
-        shotMask = ~((1 << LayerMask.NameToLayer("Ignore Shot")) | 1 << LayerMask.NameToLayer("Ignore Raycast"));
+
     }
 
     // Update is used to set features regardless the active behaviour.
@@ -202,66 +201,67 @@ public class ShootBehaviour : GenericBehaviour
                 WeaponHandle = this.GetComponent<WeaponHandling>();
                 WeaponHandle.playsound();
             }
-            
 
+            /*
             // Cast the shot to find a target.
             Vector3 imprecision = Random.Range(-shotErrorRate, shotErrorRate) * behaviourManager.playerCamera.right;
-             Ray ray = new Ray(behaviourManager.playerCamera.position, behaviourManager.playerCamera.forward + imprecision);
-             RaycastHit hit = default(RaycastHit);
-             // Target was hit.
-             if (Physics.Raycast(ray, out hit, 500f, shotMask))
-             {
-               
-                if (hit.collider.transform != this.transform)
-                 {
-                     // Handle shot effects on target.
-                     DrawShoot(weapons[weapon].gameObject, hit.point, hit.normal, hit.collider.transform);
+            Ray ray = new Ray(behaviourManager.playerCamera.position, behaviourManager.playerCamera.forward + imprecision);
+            RaycastHit hit = default(RaycastHit);
+            // Target was hit.
+            if (Physics.Raycast(ray, out hit, 1000f, shotMask))
+            {
 
-                     // Call the damage behaviour of target if exists.
-                    /* if (hit.collider.gameObject.GetComponent<HealthManager>())
+                if (hit.collider.transform != this.transform)
+                {
+                    // Handle shot effects on target.
+                    DrawShoot(weapons[weapon].gameObject, hit.point, hit.normal, hit.collider.transform);
+
+                    // Call the damage behaviour of target if exists.
+                     if (hit.collider.gameObject.GetComponent<HealthManager>())
                      {
                          hit.collider.gameObject.GetComponent<HealthManager>().TakeDamage(hit.point, ray.direction, weapons[weapon].bulletDamage);
-                     }*/
-                 }
-             }
-             // No target was hit.
-             else
-             {
-               
-                 Vector3 destination = (ray.direction * 500f) - ray.origin;
-                 // Handle shot effects without a specific target.
-                 DrawShoot(weapons[weapon].gameObject, destination, Vector3.up, null, false, false);
-             }
-                // Play shot sound.
-             //AudioSource.PlayClipAtPoint(weapons[weapon].shotSound, gunMuzzle.transform.position,0.5f);
-           
+                     }
+                }
+            }
+            // No target was hit.
+            else
+            {
+
+                Vector3 destination = (ray.direction * 500f) - ray.origin;
+                // Handle shot effects without a specific target.
+                DrawShoot(weapons[weapon].gameObject, destination, Vector3.up, null, false, false);
+            }*/
+            
+            //AudioSource.PlayClipAtPoint(weapons[weapon].shotSound, gunMuzzle.transform.position,0.5f);
+
             // Reset shot lifetime.
             shotDecay = originalShotDecay;
-            
+
         }
     }
 
     // Manage the shot visual effects.
-    private void DrawShoot(GameObject weapon, Vector3 destination, Vector3 targetNormal, Transform parent,
+    public void DrawShoot(GameObject weapon, Vector3 destination, Vector3 targetNormal, Transform parent,
         bool placeSparks = true, bool placeBulletHole = true)
     {
-        Vector3 origin = gunMuzzle.position ;
+        Vector3 origin = gunMuzzle.position;
 
-           // Draw the flash at the gun muzzle position.
-           //muzzleFlash.SetActive(true);
-           //muzzleFlash.transform.localPosition = Vector3.zero;
-           //muzzleFlash.transform.localEulerAngles = Vector3.back * 90f;
-          /*obj = (GameObject)Instantiate(muzzleFlash, gunMuzzle2.transform.position, gunMuzzle2.transform.rotation);
-          //NetworkServer.Spawn(obj);
-          obj.transform.SetParent(gunMuzzle2);
-          obj.SetActive(true);*/
-         // obj = WeaponHandle.setFlash(gunMuzzle2);
-          //WeaponHandle.setFlash1();
-           
-    
+        // Draw the flash at the gun muzzle position.
+        //muzzleFlash.SetActive(true);
+        //muzzleFlash.transform.localPosition = Vector3.zero;
+        //muzzleFlash.transform.localEulerAngles = Vector3.back * 90f;
+        /*obj = (GameObject)Instantiate(muzzleFlash, gunMuzzle2.transform.position, gunMuzzle2.transform.rotation);
+        //NetworkServer.Spawn(obj);
+        obj.transform.SetParent(gunMuzzle2);
+        obj.SetActive(true);*/
+        // obj = WeaponHandle.setFlash(gunMuzzle2);
+        //WeaponHandle.setFlash1();
+
+
         // Create the shot tracer and smoke trail particle.
         GameObject instantShot = Instantiate(shot, origin, Quaternion.LookRotation(destination - origin));
         instantShot.SetActive(true);
+        Destroy(instantShot, 2);
         WeaponHandle.setFlash1(destination);
         //instantShot.transform.position = origin;
         //instantShot.transform.rotation = Quaternion.LookRotation(destination - origin);
@@ -303,7 +303,7 @@ public class ShootBehaviour : GenericBehaviour
             bullet.transform.SetParent(parent);
         }
     }
-    
+
     // Change the active weapon.
     public void ChangeWeapon(int oldWeapon, int newWeapon)
     {
@@ -472,6 +472,7 @@ public class ShootBehaviour : GenericBehaviour
     // Manage inverse kinematic parameters.
     public void OnAnimatorIK(int layerIndex)
     {
+
         if (isAiming && activeWeapon > 0)
         {
             if (CheckforBlockedAim())
@@ -519,7 +520,7 @@ public class ShootBehaviour : GenericBehaviour
             leftArm.localEulerAngles = leftArm.localEulerAngles + LeftArmShortAim;
         }
 
-       
+
     }
-    
+
 }
