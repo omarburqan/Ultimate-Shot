@@ -6,7 +6,7 @@ public class NetwrokBehaviour : NetworkBehaviour
 {
     [SerializeField]
     public Behaviour[] ComToDisable;
-    public Canvas ShooterScore;
+    
     public Canvas PlayerUI;
     void Start()
     {
@@ -16,16 +16,24 @@ public class NetwrokBehaviour : NetworkBehaviour
             {
                 ComToDisable[i].enabled = false;
             }
-            ShooterScore.enabled = false;
             PlayerUI.enabled = false;
         }
         string _playerID = "Player " + GetComponent<NetworkIdentity>().netId;
         this.transform.name = _playerID;
         GameManager.instance.RegisterPlayer(this.transform.name, GetComponent<HealthManager>());
     }
-  
-    private void OnDisable()
+    /*private void OnDisable()
     {
         GameManager.instance.UnRegisterPlayer(transform.name);
+    }*/
+    public void FreezePlayer()
+    {
+        if (!isLocalPlayer)
+            return;
+        for (int i = 0; i < ComToDisable.Length; i++)
+        {
+            if(i!=4 && i!=5)
+                ComToDisable[i].enabled = false;
+        }
     }
 }

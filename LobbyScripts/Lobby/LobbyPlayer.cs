@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+
 
 namespace Prototype.NetworkLobby
 {
@@ -63,6 +62,17 @@ namespace Prototype.NetworkLobby
             }
         }
         [Command]
+        void CmdOnMyCharacterSelect(int index)
+        {
+            OnMyCharacterSelect(index);
+
+        }
+        void OnMyCharacterSelect(int index)
+        {
+            value = index;
+            Dropdown.value = index;
+        }
+        [Command]
         void Cmdtellother(int x)
         {
             if (isServer)
@@ -87,44 +97,11 @@ namespace Prototype.NetworkLobby
             if (isServer)
             {
                 OnTeamSelect(x);
-                LobbyManager.s_Singleton.SetPlayerTeam(GetComponent<NetworkIdentity>().connectionToClient, x);
-                Rpctellother1(x);
             }
             else
             {
                 CmdOnTeamSelect(x);
-                LobbyManager.s_Singleton.SetPlayerTeam(GetComponent<NetworkIdentity>().connectionToClient, x);
-                Cmdtellother1(x);
             }
-        }
-        [Command]
-        void Cmdtellother1(int x)
-        {
-            if (isServer)
-            {
-                LobbyManager.s_Singleton.SetPlayerTeam(this.GetComponent<NetworkIdentity>().connectionToClient, x);
-            }
-            Rpctellother1(x);
-        }
-        [Client]
-        void Rpctellother1(int x)
-        {
-            if (!isLocalPlayer && !isServer)
-            {
-                LobbyManager.s_Singleton.SetPlayerTeam(this.GetComponent<NetworkIdentity>().connectionToClient, x);
-            }
-        }
-        /***********************************/
-        [Command]
-        void CmdOnMyCharacterSelect(int index)
-        {
-            OnMyCharacterSelect(index);
-            
-        }
-        void OnMyCharacterSelect(int index)
-        {
-            value = index;
-            Dropdown.value = index;
         }
         [Command]
         void CmdOnTeamSelect(int index)

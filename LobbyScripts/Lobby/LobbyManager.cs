@@ -282,42 +282,19 @@ namespace Prototype.NetworkLobby
         //But OnLobbyClientConnect isn't called on hosting player. So we override the lobbyPlayer creation
 
         public Dictionary<int, int> currentPlayers = new Dictionary<int, int>();
-        public Dictionary<int, int> playerTeam = new Dictionary<int, int>();
         public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
         {
-            print("ssss");
             if (!currentPlayers.ContainsKey(conn.connectionId))
                 currentPlayers.Add(conn.connectionId, 0);
-            if (!playerTeam.ContainsKey(conn.connectionId))
-                playerTeam.Add(conn.connectionId, 0);
-
             return base.OnLobbyServerCreateLobbyPlayer(conn, playerControllerId);
         }
-        public void SetPlayerTeam(NetworkConnection conn, int _type)
-        {
-            if (conn == null)
-            {
-                print("conn null");
-                return;
-            }
-
-            if (playerTeam.ContainsKey(conn.connectionId))
-            {
-                playerTeam[conn.connectionId] = _type;
-            }
-            else
-            {
-                playerTeam.Add(conn.connectionId, _type);
-            }
-        }
+        
         public void SetPlayerTypeLobby(NetworkConnection conn, int _type)
         {
             if (conn == null)
             {
-                print("conn null");
                 return;
             }
-               
             if (currentPlayers.ContainsKey(conn.connectionId))
             { 
                 currentPlayers[conn.connectionId] = _type;
@@ -333,7 +310,6 @@ namespace Prototype.NetworkLobby
         public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
         {
             int index = currentPlayers[conn.connectionId];
-            int TeamIndex = playerTeam[conn.connectionId];
             GameObject[] spawnpoints = GameObject.FindGameObjectsWithTag("SpawnPoints1");
             GameObject[] spawnpoints2 = GameObject.FindGameObjectsWithTag("SpawnPoints2");
             GameObject _temp = spawnPrefabs[0];
@@ -359,12 +335,10 @@ namespace Prototype.NetworkLobby
             {
                 if (mapName.Equals("map1")) {
                     _temp = Instantiate(spawnPrefabs[index], spawnpoints[0].transform.position, spawnpoints[0].transform.rotation);
-                    _temp.GetComponent<CarHealthManager>().Team = TeamIndex + 1;
                 }
                 else if (mapName.Equals("map2"))
                 {
                     _temp = Instantiate(spawnPrefabs[index], spawnpoints2[0].transform.position, spawnpoints2[0].transform.rotation);
-                    _temp.GetComponent<CarHealthManager>().Team = TeamIndex + 1;
                 }
                 NumOfCars++;
             }
@@ -373,14 +347,18 @@ namespace Prototype.NetworkLobby
                 if (mapName.Equals("map1"))
                 {
                     _temp = Instantiate(spawnPrefabs[index], spawnpoints[1].transform.position, spawnpoints[1].transform.rotation);
-                    _temp.GetComponent<HealthManager>().Team = TeamIndex + 1;
                 }
                 else if (mapName.Equals("map2"))
                 {
                     _temp = Instantiate(spawnPrefabs[index], spawnpoints2[1].transform.position, spawnpoints2[1].transform.rotation);
-                    _temp.GetComponent<HealthManager>().Team = TeamIndex + 1;
                 }
                 NumOfplayers++;
+            }
+            if (NumOfplayers + NumOfCars == LobbyPlayerList._instance._players.Count)
+            {
+                NumOfplayers = 0;
+                NumOfCars = 0;
+                currentPlayers.Clear();
             }
             return _temp;
         }

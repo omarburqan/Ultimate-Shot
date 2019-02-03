@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-
+[RequireComponent(typeof(CarHealthManager))]
 public class DisableCom : NetworkBehaviour {
     [SerializeField]
     public Behaviour[] ComToDisable;
-    public Canvas CarScore;
     public Canvas PlayerUI;
 
     void Start () {
@@ -16,7 +15,6 @@ public class DisableCom : NetworkBehaviour {
             {
                 ComToDisable[i].enabled = false;
             }
-            CarScore.enabled = false;
             PlayerUI.enabled = false;
         }
         string _playerID = "Driver " + GetComponent<NetworkIdentity>().netId;
@@ -24,8 +22,17 @@ public class DisableCom : NetworkBehaviour {
         GameManager.instance.RegisterDriver(this.transform.name, GetComponent<CarHealthManager>());
     }
 
-    private void OnDisable()
+    /*private void OnDisable()
     {
         GameManager.instance.UnRegisterDriver(transform.name);
+    }*/
+    public void FreezePlayer()
+    {
+        if (!isLocalPlayer)
+            return;
+        for (int i = 0; i < ComToDisable.Length; i++)
+        {
+                ComToDisable[i].enabled = false;
+        }
     }
 }

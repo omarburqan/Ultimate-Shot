@@ -355,63 +355,6 @@ public class WeaponHandling : NetworkBehaviour
         GameObject instantShot = Instantiate(Player.shot, gunMuzzle2.position, Quaternion.LookRotation(destination - gunMuzzle2.position));
         instantShot.SetActive(true);
     }
-    [Command]
-    void CmdsetFlash(Vector3 destination)
-    {
-        if (isServer)
-        {
-            setFlash(Player.getMuzzle(),destination);
-        }
-        RpcsetFlash(destination);
-    }
-    [ClientRpc]
-    void RpcsetFlash(Vector3 destination)
-    {
-        if (!isLocalPlayer && !isServer)
-        {
-            setFlash(Player.getMuzzle(), destination);
-        }
-    }
-    public void setFlash1(Vector3 destination)
-    {
-        if (isServer)
-        {
-            RpcsetFlash(destination);
-        }
-        else
-        {
-            CmdsetFlash(destination);
-        }
-    }
-    /******************************/
-    [Command]
-    void CmdRemoveFlash()
-    {
-        if (isServer)
-        {
-            Player.getobj().SetActive(false);
-        }
-        RpcRemoveFlash();
-    }
-
-    [ClientRpc]
-    void RpcRemoveFlash()
-    {
-        if (!isLocalPlayer && !isServer)
-        {
-            Player.getobj().SetActive(false);
-        }
-    }
-    public void RemoveFlash()
-    {
-        if (isServer)
-        {
-            RpcRemoveFlash();
-        }
-        else
-        {
-            CmdRemoveFlash();
-        }
-    }
+    
 
 }

@@ -172,11 +172,11 @@ public class ShootBehaviour : GenericBehaviour
 
     // Shoot the weapon.
     private WeaponHandling WeaponHandle;
-    private GameObject obj;
+    /*private GameObject obj;
     public GameObject getobj()
     {
         return obj;
-    }
+    }*/
     public void ShootWeapon(int weapon)
     {
         // Check conditions to shoot.
@@ -241,7 +241,7 @@ public class ShootBehaviour : GenericBehaviour
     }
 
     // Manage the shot visual effects.
-    public void DrawShoot(GameObject weapon, Vector3 destination, Vector3 targetNormal, Transform parent,
+    /*public void DrawShoot(GameObject weapon, Vector3 destination, Vector3 targetNormal, Transform parent,
         bool placeSparks = true, bool placeBulletHole = true)
     {
         Vector3 origin = gunMuzzle.position;
@@ -253,7 +253,7 @@ public class ShootBehaviour : GenericBehaviour
         /*obj = (GameObject)Instantiate(muzzleFlash, gunMuzzle2.transform.position, gunMuzzle2.transform.rotation);
         //NetworkServer.Spawn(obj);
         obj.transform.SetParent(gunMuzzle2);
-        obj.SetActive(true);*/
+        obj.SetActive(true);
         // obj = WeaponHandle.setFlash(gunMuzzle2);
         //WeaponHandle.setFlash1();
 
@@ -262,19 +262,21 @@ public class ShootBehaviour : GenericBehaviour
         GameObject instantShot = Instantiate(shot, origin, Quaternion.LookRotation(destination - origin));
         instantShot.SetActive(true);
         Destroy(instantShot, 2);
-        WeaponHandle.setFlash1(destination);
+
+
+        
         //instantShot.transform.position = origin;
         //instantShot.transform.rotation = Quaternion.LookRotation(destination - origin);
         //instantShot.transform.parent = shot.transform.parent;///////////////
         return;
         // Create the shot sparks at target.
-        /*if (placeSparks)
+        if (placeSparks)
         {
             GameObject instantSparks = Object.Instantiate<GameObject>(sparks);
             instantSparks.SetActive(true);
             instantSparks.transform.position = destination;
             //instantSparks.transform.parent = sparks.transform.parent;///////////////
-        }*/
+        }
 
         // Put bullet hole on the target.
         if (placeBulletHole)
@@ -302,7 +304,7 @@ public class ShootBehaviour : GenericBehaviour
             bullet.transform.rotation = hitRotation;
             bullet.transform.SetParent(parent);
         }
-    }
+    }*/
 
     // Change the active weapon.
     public void ChangeWeapon(int oldWeapon, int newWeapon)
@@ -458,7 +460,7 @@ public class ShootBehaviour : GenericBehaviour
     }
 
     // Check if aim is blocked by obstacles.
-    private bool CheckforBlockedAim()
+    public bool CheckforBlockedAim()
     {
         RaycastHit hit = default(RaycastHit);
         isAimBlocked = Physics.SphereCast(this.transform.position + castRelativeOrigin, 0.1f, behaviourManager.GetCamScript.transform.forward, out hit, distToHand - 0.1f);
@@ -469,38 +471,7 @@ public class ShootBehaviour : GenericBehaviour
         return isAimBlocked;
     }
 
-    // Manage inverse kinematic parameters.
-    public void OnAnimatorIK(int layerIndex)
-    {
-
-        if (isAiming && activeWeapon > 0)
-        {
-            if (CheckforBlockedAim())
-                return;
-
-            // Orientate upper body where camera  is targeting.
-            Quaternion targetRot = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-            targetRot *= Quaternion.Euler(initialRootRotation);
-            targetRot *= Quaternion.Euler(initialHipsRotation);
-            targetRot *= Quaternion.Euler(initialSpineRotation);
-            // Set upper body horizontal orientation.
-            behaviourManager.GetAnim.SetBoneLocalRotation(HumanBodyBones.Spine, Quaternion.Inverse(hips.rotation) * targetRot);
-
-            // Keep upper body orientation regardless strafe direction.
-            float xCamRot = Quaternion.LookRotation(behaviourManager.playerCamera.forward).eulerAngles.x;
-            targetRot = Quaternion.AngleAxis(xCamRot + armsRotation, this.transform.right);
-            if (weapons[activeWeapon] && weapons[activeWeapon].type == InteractiveWeapon.WeaponType.LONG)
-            {
-                // Correction for long weapons.
-                targetRot *= Quaternion.AngleAxis(9f, this.transform.right);
-                targetRot *= Quaternion.AngleAxis(20f, this.transform.up);
-            }
-            targetRot *= spine.rotation;
-            targetRot *= Quaternion.Euler(initialChestRotation);
-            // Set upper body vertical orientation.
-            behaviourManager.GetAnim.SetBoneLocalRotation(HumanBodyBones.Chest, Quaternion.Inverse(spine.rotation) * targetRot);
-        }
-    }
+   
 
     // Manage post animation step corrections.
     private void LateUpdate()

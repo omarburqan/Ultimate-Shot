@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 
 public class CarHealthManager : NetworkBehaviour
@@ -16,42 +17,35 @@ public class CarHealthManager : NetworkBehaviour
     [SerializeField]
     private float maxHealth = 100;
     [SerializeField]
+    public int Score = 0;
     public RectTransform HealthBar;
-    private bool SyncTeams = false;
     private bool HasSmoke;
     private bool HasFire;
-    private bool Exploded;
-    public GameObject BurntCar;
     [SerializeField]
+    public bool Exploded;
+    public GameObject canvas;
+    public GameObject BurntCar;
+    [SyncVar]
     public int Team;
+    [SyncVar]
+    public String nickName;
+    [SyncVar]
+    public Color Color;
+    [SyncVar]
+    public int Numofplayers;
+    private bool disabledCanvas;
     private void Start()
     {
         if (!isLocalPlayer)
             return;
+        this.disabledCanvas = false;
+        canvas.SetActive(false);
         this.Healthpoints = maxHealth;
         this.HasSmoke = false;
         this.HasFire = false;
         this.Exploded = false;
-        StartCoroutine(DelaySeconds());
-        GameManager.instance.startLaps();
     }
-    [ClientRpc]
-    private void RpcSyncPlayerTeam(int team)
-    {
-        if (!isServer && !isLocalPlayer)
-        {
-            this.Team = team;
-        }
-    }
-    [Command]
-    private void CmdSyncPlayerTeam(int team)
-    {
-        if (isServer)
-        {
-            this.Team = team;
-        }
-        RpcSyncPlayerTeam(team);
-    }
+    
     private void Update()
     {
         if (!isLocalPlayer)
@@ -61,36 +55,54 @@ public class CarHealthManager : NetworkBehaviour
             SetHealthAmout(this.Healthpoints / maxHealth);
             CheckHealth();
         }
-        if (SyncTeams)
+        if (Input.GetKeyDown(KeyCode.J))
         {
-            if (isServer)
+            this.Healthpoints -= 10;
+        }
+        if (!this.disabledCanvas)
+        {
+            CarHealthManager[] drivers = GameManager.instance.getallDrivers();
+            HealthManager[] shooters = GameManager.instance.getallPlayers();
+            if (drivers.Length + shooters.Length == Numofplayers)
             {
-                RpcSyncPlayerTeam(this.Team);
+                DisableOtherCanvas(drivers, shooters);
+                this.disabledCanvas = true;
             }
-            else
-            {
-                CmdSyncPlayerTeam(this.Team);
-            }
-            this.SyncTeams = false;
         }
     }
-
-    private void SetHealthAmout(float Amount)
+    private void DisableOtherCanvas(CarHealthManager[] drivers, HealthManager[] shooters)
     {
-        if (Amount < 0)
-            Amount = 0;
-        HealthBar.localScale = new Vector3(1f, Amount, 1f);
+        if (drivers != null)
+        {
+            foreach (CarHealthManager driver in drivers)
+            {
+                if (driver.Team != this.Team)
+                {
+                    driver.canvas.SetActive(false);
+                }
+            }
+        }
+        if (shooters != null)
+        {
+            foreach (HealthManager shooter in shooters)
+            {
+                if (shooter.Team != this.Team)
+                {
+                    shooter.canvas.SetActive(false);
+                }
+            }
+        }
     }
     public void TakeDamage(float damage, string Killer,Vector3 direction)
     {
-        if(this.Healthpoints <= 0)
+        if(this.Healthpoints <= 0 || GameManager.instance.getPlayer(Killer).Team == this.Team)
         {
             return;
         }
-        this.Healthpoints -= damage/2;
+        this.Healthpoints -= damage/3;
         RpcAddForce(direction);
         print(this.transform.name + " " + Healthpoints);
-        if (Healthpoints < 1)
+        if (Healthpoints <= 0)
         {
             RpcEditScore(Killer);
         }
@@ -105,10 +117,16 @@ public class CarHealthManager : NetworkBehaviour
     {
         HealthManager player= GameManager.instance.getPlayer(Killer);
         player.Kills+=3;
-        player.KillScore.text = player.Kills.ToString();
+    }
+    /******************/
+    private void SetHealthAmout(float Amount)
+    {
+        if (Amount < 0)
+            Amount = 0;
+        HealthBar.localScale = new Vector3(1f, Amount, 1f);
     }
     /****************************************/
-     private void CheckHealth()
+    private void CheckHealth()
      {
         if (Healthpoints <= 60 && !HasSmoke)
         {
@@ -138,7 +156,7 @@ public class CarHealthManager : NetworkBehaviour
         }
         if(Healthpoints <= 0 && !Exploded)
         {
-            this.Exploded = true;
+            GameManager.instance.Lose();
             MakeBigExplosion();
             if (isServer)
             {
@@ -148,9 +166,11 @@ public class CarHealthManager : NetworkBehaviour
             {
                 CmdMakeBigExplosion();
             }
+            this.GetComponent<DisableCom>().FreezePlayer();
+            this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
         }
      }
-    /******************************************************/
+    /*********************************************************/
     [Command]
     void CmdMakeEffects()
     {
@@ -170,9 +190,9 @@ public class CarHealthManager : NetworkBehaviour
     }
     void MakeEffects()
     {
-        GameObject instantShot = Instantiate(SmokeEffect, Front.transform.position, Front.transform.rotation);
-        instantShot.SetActive(true);
-        instantShot.transform.SetParent(this.transform);
+        GameObject Effect = Instantiate(SmokeEffect, Front.transform.position, Front.transform.rotation);
+        Effect.SetActive(true);
+        Effect.transform.SetParent(this.transform);
     }
     /***************************************/
     [Command]
@@ -195,10 +215,10 @@ public class CarHealthManager : NetworkBehaviour
     void MakeSmallExplosion()
     {
         AudioSource.PlayClipAtPoint(ExplosionSound[0], transform.position, 50f);
-        GameObject instantShot = Instantiate(FireEffect, Front.transform.position, Front.transform.rotation);
-        instantShot.SetActive(true);
-        instantShot.transform.SetParent(this.transform);
-        Destroy(instantShot, 1.5f);
+        GameObject Effect = Instantiate(FireEffect, Front.transform.position, Front.transform.rotation);
+        Effect.SetActive(true);
+        Effect.transform.SetParent(this.transform);
+        Destroy(Effect, 1.5f);
     }
     /*****************************/
     [Command]
@@ -220,17 +240,19 @@ public class CarHealthManager : NetworkBehaviour
     }
     void MakeBigExplosion()
     {
-        AudioSource.PlayClipAtPoint(ExplosionSound[1], transform.position, 50f);
-        GameObject instantShot = Instantiate(Explosion, Front.transform.position, Front.transform.rotation);
-        instantShot.SetActive(true);
-        instantShot.transform.SetParent(this.transform);
-        Destroy(instantShot, 3);
+        this.Exploded = true;
+        AudioSource.PlayClipAtPoint(ExplosionSound[1], transform.position, 100f);
+        GameObject Effect = Instantiate(Explosion, Front.transform.position, Front.transform.rotation);
+        Effect.SetActive(true);
+        Effect.transform.SetParent(this.transform);
+        Destroy(Effect, 3);
+        Destroy(this.gameObject, 3);
     }
     /*************************************/
-    IEnumerator DelaySeconds()
+    /*IEnumerator DelaySeconds()
     {
-        yield return new WaitForSeconds(10);
-        this.SyncTeams = true;
-    }
+        yield return new WaitForSeconds(4);
+        
+    }*/
 }
 

@@ -15,7 +15,7 @@ namespace Prototype.NetworkLobby
         public Transform addButtonRow;
 
         protected VerticalLayoutGroup _layout;
-        protected List<LobbyPlayer> _players = new List<LobbyPlayer>();
+        public List<LobbyPlayer> _players = new List<LobbyPlayer>();
 
         public void OnEnable()
         {
