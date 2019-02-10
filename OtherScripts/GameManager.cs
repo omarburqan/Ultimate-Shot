@@ -5,7 +5,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+// a game manager for all players which will save each player properties and return it when needed from the server on any other scripts.
+// changing laps for drivers when needed or  finish the game.
 public class GameManager : MonoBehaviour {
     public static GameManager instance = null;
     private GameObject[] Players;

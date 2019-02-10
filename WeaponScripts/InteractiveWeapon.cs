@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-// This class corresponds to any in-game weapon interactions.
+// This class corresponds to any in-game weapon.
 [System.Serializable]
 public class InteractiveWeapon : NetworkBehaviour
 {

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+/// <summary>
+///  this class corresponds to disable not local players to interact with other players scripts.
+/// </summary>
 [RequireComponent(typeof(CarHealthManager))]
 public class DisableCom : NetworkBehaviour {
     [SerializeField]

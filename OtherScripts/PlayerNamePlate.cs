@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// a class which manage each player Name plate in order to draw a canvas for each player which will be used only for team mates;
 public class PlayerNamePlate : MonoBehaviour {
 
     [SerializeField]

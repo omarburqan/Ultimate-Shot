@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+/// <summary>
+/// a class to control or manage the car health,and game status, and generate the effects according to healthpoints (smoking,small explosion,final explosion(Lose))
+/// </summary>
 
 public class CarHealthManager : NetworkBehaviour
 {

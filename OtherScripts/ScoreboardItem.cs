@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// scoreboardscripts will generate for each player a special item with his properties.
 public class ScoreboardItem : MonoBehaviour {
 
     [SerializeField]

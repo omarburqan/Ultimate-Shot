@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+// enable the scoreboard for player when X is pressed
 public class PlayerUI : MonoBehaviour {
     [SerializeField]
     public GameObject ScoreBoard;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-
+// a class which manages player interact with weapons pick up , drop,hide ,change,shot,.....
 public class WeaponHandling : NetworkBehaviour
 {
     public InteractiveWeapon Weapon;

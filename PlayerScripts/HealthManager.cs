@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 // This is a template script for in-game object health manager.
 // Any in-game entity that reacts to a shot must have this script with the public function TakeDamage().
-
+// manage the status of the player and his team mate status.
 public class HealthManager : NetworkBehaviour
 {
     [SyncVar]
