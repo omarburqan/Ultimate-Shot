@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using Prototype.NetworkLobby;
-
+// a class to pass player input from the lobby into the game .
 public class NetworkLobbyHook : LobbyHook {
 
     public override void OnLobbyServerSceneLoadedForPlayer(NetworkManager manager, GameObject lobbyPlayer, GameObject gamePlayer)
