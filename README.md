@@ -28,4 +28,4 @@ in the game each play have a special power ups (restore healthpoints,ammo,nitrou
 
 
 
-### copyright to : Azrielli college of engineering -- Made By Omar burqan and Mutasem abu nab.
+### copyright to : Azrielli college of engineering -- Made By [Omar burqan](https://github.com/omarburqan) and [Mutasem abu nab](https://github.com/mutasemNidal).
