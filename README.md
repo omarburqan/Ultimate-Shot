@@ -4,7 +4,7 @@ A multiplayer game which is made by Unity Engine and C# by using Microsoft visua
 which one of the players will be the server and the rest are client as normal.
 
 ## About the Game:
-The game in general is a compine between third person shooter(TPS) and a racing game which allows the shooter to free run in the map in order to accomplish his missions(protect his team-mate and collect powers up ,points by killing the opposite shooters in the other teams).
+The game in general is a compine between third person shooter(TPS) and a racing game which allows the shooter to free run in the map in order to accomplish his tasks(protect his team-mate and collect powers up ,points by killing the opposite shooters in the other teams).
 the TPS also have a speical power in order to follow the car speed (so he can fly).
 The second player which is the driver the player who is responsible on the car and to get in the first place of the race and he has several tasks in the map itself like collecting points by passing through checkpoints.
 The race itself has several laps each lap is a development from the previous lap.(for example the first lap will be race and shooters , second lap may be a development for the gun which the player use and the car may have nitros for example).
