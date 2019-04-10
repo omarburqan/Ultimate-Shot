@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-/// <summary>
-/// a class to control or manage the car health,and game status, and generate the effects according to healthpoints (smoking,small explosion,final explosion(Lose))
-/// </summary>
 
 public class CarHealthManager : NetworkBehaviour
 {
@@ -15,6 +12,7 @@ public class CarHealthManager : NetworkBehaviour
     public GameObject Explosion;
     public GameObject Front;
     public AudioClip[] ExplosionSound;
+    public string teamMate;
     [SyncVar]
     private float Healthpoints = 100;
     [SerializeField]
@@ -58,9 +56,9 @@ public class CarHealthManager : NetworkBehaviour
             SetHealthAmout(this.Healthpoints / maxHealth);
             CheckHealth();
         }
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.H))
         {
-            this.Healthpoints -= 10;
+            this.Healthpoints -= 25;
         }
         if (!this.disabledCanvas)
         {
@@ -79,10 +77,7 @@ public class CarHealthManager : NetworkBehaviour
         {
             foreach (CarHealthManager driver in drivers)
             {
-                if (driver.Team != this.Team)
-                {
-                    driver.canvas.SetActive(false);
-                }
+                driver.canvas.SetActive(false);
             }
         }
         if (shooters != null)
@@ -92,6 +87,11 @@ public class CarHealthManager : NetworkBehaviour
                 if (shooter.Team != this.Team)
                 {
                     shooter.canvas.SetActive(false);
+                }
+                else
+                {
+                    this.teamMate = shooter.name;
+                    
                 }
             }
         }
@@ -144,7 +144,7 @@ public class CarHealthManager : NetworkBehaviour
                 CmdMakeEffects();
             }
         }
-        if (Healthpoints <= 25 && !HasFire)
+        if (Healthpoints <= 25 && !HasFire) 
         {
             this.HasFire = true;
             MakeSmallExplosion();

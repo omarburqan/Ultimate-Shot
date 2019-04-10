@@ -5,9 +5,10 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 // This is a template script for in-game object health manager.
 // Any in-game entity that reacts to a shot must have this script with the public function TakeDamage().
-// manage the status of the player and his team mate status.
+
 public class HealthManager : NetworkBehaviour
 {
+    private CarHealthManager teamMate;
     [SyncVar]
     private float Healthpoints = 100;
     [SerializeField]
@@ -78,30 +79,26 @@ public class HealthManager : NetworkBehaviour
         {
             SetHealthAmout(this.Healthpoints / maxHealth);
             CheckHealth();
-            CarHealthManager[] drivers = GameManager.instance.getallDrivers();
-            foreach (CarHealthManager driver in drivers)
+            if (teamMate && teamMate.Team == this.Team)
             {
-                if (driver.Team == this.Team)
+                if (teamMate.Exploded) // if team mate lost as the shooter lose
                 {
-                    if (driver.Exploded) // if team mate lost as the shooter lose
+                    GameManager.instance.Lose();
+                    this.Healthpoints = 0f;
+                }
+                if(teamMate.Score >= 50 ) // if my team mate has finished first lap 
+                {
+                    // changing the lap according to his team mate so he can protect him
+                    bool FINISHED = GameManager.instance.changeLap();
+                    if (FINISHED)
                     {
-                        GameManager.instance.Lose();
-                        this.Healthpoints = 0f;
-                    }
-                    if(driver.Score >= 50 ) // if my team mate has finished first lap 
-                    {
-                        // changing the lap according to his team mate so he can protect him
-                        bool FINISHED = GameManager.instance.changeLap();
-                        if (FINISHED)
-                        {
-                            this.GetComponent<NetwrokBehaviour>().FreezePlayer();
-                            this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
-                        }
+                        this.GetComponent<NetwrokBehaviour>().FreezePlayer();
+                        this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
                     }
                 }
             }
         }
-        if (!this.disabledCanvas) // keep checking untill all players are in order to disable Nameplates for non team member.
+        if (!this.disabledCanvas) // keep checking untill all players are ready in order to disable Nameplates for non team member.
         {
             CarHealthManager[] drivers = GameManager.instance.getallDrivers();
             HealthManager[] shooters = GameManager.instance.getallPlayers();
@@ -111,7 +108,6 @@ public class HealthManager : NetworkBehaviour
                 this.disabledCanvas = true;
             }
         }
-        
     }
    private void DisableOtherCanvas(CarHealthManager[] drivers,HealthManager[] shooters)
     {
@@ -123,16 +119,17 @@ public class HealthManager : NetworkBehaviour
                 {
                     driver.canvas.SetActive(false);
                 }
+                else
+                {
+                    this.teamMate = GameManager.instance.getDriver(driver.name);
+                }
             }
         }
         if (shooters != null) 
         {
             foreach (HealthManager shooter in shooters)
             {
-                if (shooter.Team != this.Team)
-                {
-                    shooter.canvas.SetActive(false);
-                }
+                shooter.canvas.SetActive(false);
             }
         }
     }
@@ -175,21 +172,44 @@ public class HealthManager : NetworkBehaviour
     private void CheckHealth()
     {
         if(this.Healthpoints <= 0) {
-            
-            anim.SetTrigger("Death");
-            GameManager.instance.Lose();
-            Die();
-            if (isServer)
+            if (this.GetComponent<FlyBehaviour>().fly == true)
             {
-                RpcDie();
+                this.GetComponent<NetwrokBehaviour>().FreezePlayer();
+                this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
+                GameManager.instance.Lose();
+                WeaponHandling player = this.GetComponent<WeaponHandling>();
+                player.dropWeapon();
+                this.setLost(true);
+                GameObject Ragdoll = Instantiate(ragdoll, this.transform.position, this.transform.rotation);
+                Ragdoll.SetActive(true);
+                SpectateTeamMate();
+                Destroy(this.gameObject,1);
+                if (isServer)
+                {
+                    RpcDies();
+                }
+                else
+                {
+                    CmdDies();
+                }
             }
             else
             {
-                CmdDie();
+                anim.SetTrigger("Death");
+                GameManager.instance.Lose();
+                Die();
+                if (isServer)
+                {
+                    RpcDie();
+                }
+                else
+                {
+                    CmdDie();
+                }
+                this.GetComponent<NetwrokBehaviour>().FreezePlayer();
+                this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
+                StartCoroutine(DelaySeconds());
             }
-            this.GetComponent<NetwrokBehaviour>().FreezePlayer();
-            this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
-            SpectateTeamMate();
             
         }
     }
@@ -197,14 +217,22 @@ public class HealthManager : NetworkBehaviour
     private void OnCollisionStay(Collision collision) // Die by car run over 
     {
         float minimumCollisionForce = 10f;
-        if (this.gameObject.tag=="Player" && collision.gameObject.tag == "DriverPlayer" /*&& collision.relativeVelocity.magnitude > minimumCollisionForce*/ )
+        if (this.gameObject.tag=="Player" && collision.gameObject.tag == "DriverPlayer" && collision.relativeVelocity.magnitude > minimumCollisionForce)
         {
+            this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionY;
             this.gameObject.GetComponent<CapsuleCollider>().isTrigger = true;
             if (!isLocalPlayer)
                 return;
-            this.Healthpoints = 0;
+            this.GetComponent<NetwrokBehaviour>().FreezePlayer();
+            this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
             GameManager.instance.Lose();
-            Dies();
+            WeaponHandling player = this.GetComponent<WeaponHandling>();
+            player.dropWeapon();
+            this.setLost(true);
+            GameObject Ragdoll = Instantiate(ragdoll, this.transform.position, this.transform.rotation);
+            Ragdoll.SetActive(true);
+            SpectateTeamMate();
+            Destroy(this.gameObject, 1);
             if (isServer)
             {
                 RpcDies();
@@ -213,7 +241,7 @@ public class HealthManager : NetworkBehaviour
             {
                 CmdDies();
             }
-            SpectateTeamMate();
+            
         }
     }
     [Command]
@@ -235,35 +263,31 @@ public class HealthManager : NetworkBehaviour
     }
     void Dies()
     {
+        WeaponHandling player = this.GetComponent<WeaponHandling>();
+        player.dropWeapon();
         this.setLost(true);
         GameObject Ragdoll = Instantiate(ragdoll, this.transform.position, this.transform.rotation);
         Ragdoll.SetActive(true);
-        Destroy(this.gameObject,3);
+        this.gameObject.SetActive(false);
+        Destroy(this.gameObject,6);
     }
     void SpectateTeamMate()
     {
-        CarHealthManager[] drivers = GameManager.instance.getallDrivers();
-        if (drivers != null)
+        if (teamMate && teamMate.Exploded==false)
         {
-            foreach (CarHealthManager driver in drivers)
-            {
-                if(driver.Team == this.Team)
-                {
-                    PlayerCam.GetComponent<ThirdPersonOrbitCam>().player = drivers[0].transform;
-                    GameObject obj = Instantiate(Spectate);
-                    driver.canvas.SetActive(false);
-                    return;
-                }
-            }
+            PlayerCam.GetComponent<ThirdPersonOrbitCam>().player = teamMate.transform;
+            GameObject obj = Instantiate(Spectate);
+            teamMate.canvas.SetActive(false);
+            return;
         }
     }
     public void TakeDamage(/*Vector3 location,Vector3 direction,*/float damage,string Killer)
     {
-        if (this.Healthpoints <= 0 || GameManager.instance.getPlayer(Killer).Team== this.Team)
+        if (this.Healthpoints <= 0 || GameManager.instance.getPlayer(Killer).Team == this.Team)
         {
             return;
         }
-        this.Healthpoints -= damage;
+        this.Healthpoints -= damage/2;
         if (Healthpoints <= 0)
         {
             RpcEditScore(Killer);
@@ -295,14 +319,18 @@ public class HealthManager : NetworkBehaviour
     }
     void Die()
     {
+        WeaponHandling player = this.GetComponent<WeaponHandling>();
+        player.dropWeapon();
         this.setLost(true);
         this.GetComponent<CapsuleCollider>().direction = 0;
         Destroy(this.gameObject, 6);
     }
 
-    /*IEnumerator DelaySeconds()
+    IEnumerator DelaySeconds()
     {
-        yield return new WaitForSeconds(10);
-    }*/
+        yield return new WaitForSeconds(3);
+        SpectateTeamMate();
+
+    }
     
 }

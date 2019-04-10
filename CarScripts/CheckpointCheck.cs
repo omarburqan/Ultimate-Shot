@@ -1,9 +1,9 @@
-﻿    using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
     using UnityEngine.Networking;
 /// <summary>
 /// a class to control or manage the car when entering a checkpoint , which will increase the score and disappear the checkpoint 
 /// syncing the driver score to other players in order to get a correct scoreboard when ever enabled.
-/// start the  laps for each car.
 /// </summary>
     public class CheckpointCheck : NetworkBehaviour {
 
@@ -34,6 +34,27 @@
                     GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
             }
         }
+    //private int mapnumber = 0 ; // map number
+    private void Update()
+    {
+        if (!isLocalPlayer)
+            return;
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            /*GameObject []Mapname; // all the map names
+            if (mapnumber >= Mapname.Length())
+                mapnumber = 0;
+           int map = Random.Range(mapnumber, Mapname.Length());
+            swap(Mapname[mapnumber], Mapname[map]);
+            mapnumber += 1;*/
+            if (this.GetComponent<StatusManager>().maptoLoad != "")
+            {
+                return;
+            }
+            LoadNextLevel();
+        }
+    }
+      
         void OnTriggerEnter(Collider other)
         {
             if (isLocalPlayer) { 
@@ -100,8 +121,8 @@
                         }
                         break;
                     case "finish":
-                       if(CheckPointbool[8] == true)
-                       {
+                       //if(CheckPointbool[8] == true)
+                       //{
                             CheckPointbool[9] = true;
                             string Place = GameManager.instance.DriverWinner();
                             SetPlace(Place);
@@ -128,16 +149,18 @@
                             bool FINISHED = GameManager.instance.changeLap();
                             if (FINISHED)
                             {
+                                this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                                 this.GetComponent<DisableCom>().FreezePlayer();
                                 this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
                             }
                             else
                             {
-                                LapNumber++;
-                                GameManager.instance.Laps[LapNumber].transform.Find("Checkpoint1").
-                                    GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
+                                LoadNextLevel();
                             }
-                       }
+
+                            //this.transform.position = Position.transform.position;
+                            //this.transform.rotation = Position.transform.rotation;
+                       //}
                         break;
                 }
             }
@@ -208,6 +231,7 @@
         if (!isLocalPlayer)
             return;
         other.gameObject.SetActive(false);
+        CmdPartnerFollow(other.gameObject.tag,this.GetComponent<CarHealthManager>().teamMate,this.name);
         this.GetComponent<CarHealthManager>().Score += 5;
         if (score != 0)
             this.GetComponent<CarHealthManager>().Score += score;
@@ -215,5 +239,65 @@
         if(nextCheck!=" ")
             GameManager.instance.Laps[LapNumber].transform.Find(nextCheck).GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
 
+    }
+    [Command]
+    void CmdPartnerFollow(string CheckpointTag,string teamMate,string myName)
+    {
+        if (teamMate != "")
+        {
+            print(teamMate);
+            if (GameManager.instance.getStatus(teamMate)!=null)
+            {
+                GameManager.instance.getStatus(teamMate).RpcteamMatePosition(CheckpointTag,myName);
+            }
+            
+        }
+    }
+    [Command]
+    void CmdChangeMap(string mapName,string myName)
+    {
+        StatusManager[] playersStatus = GameManager.instance.getAll();
+
+        foreach (StatusManager player in playersStatus)
+        {
+            if(player.transform.name != this.name)
+                player.ChangeMap(mapName);
+        }
+        return;
+    }
+    void LoadNextLevel()
+    {
+        int mapNumber = Random.Range(4, 6);
+        string[] semesterArray = { "A", "S", "W" };
+        int mapSeason = Random.Range(0, 2);
+
+        string[] timeArray = { "D", "N" };
+        int mapTime = Random.Range(0, 1);
+
+        this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        this.transform.position = GameObject.FindGameObjectWithTag("SpawnPoints3").transform.position;
+        string mapName = "Map" + mapNumber.ToString() +
+                semesterArray[mapSeason].ToString() +
+                timeArray[mapTime].ToString();
+
+        Instantiate(Resources.Load("Map4WN") as GameObject);
+        StartCoroutine(DestroyOldMap());
+        StartCoroutine(FreezePlayer());
+        CmdChangeMap("Map4WN", this.name);
+        this.GetComponent<StatusManager>().PlayerUpgrade();
+    }
+    IEnumerator FreezePlayer()
+    {
+        yield return new WaitForSeconds(.2f);
+        this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+    }
+    IEnumerator DestroyOldMap()
+    {
+        yield return new WaitForEndOfFrame();
+        if(GameObject.FindGameObjectWithTag("MAP1"))
+            GameObject.FindGameObjectWithTag("MAP1").SetActive(false);
+        else if(GameObject.FindGameObjectWithTag("MAP2"))
+            GameObject.FindGameObjectWithTag("MAP2").SetActive(false);
     }
 }

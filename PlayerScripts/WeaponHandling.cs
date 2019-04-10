@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-// a class which manages player interact with weapons pick up , drop,hide ,change,shot,.....
+
 public class WeaponHandling : NetworkBehaviour
 {
     public InteractiveWeapon Weapon;
-    public ShootBehaviour Player;
+
+    [SerializeField]
+    ShootBehaviour Player;
+    
     public Camera playerCamera;
 
     // Use this for initialization
@@ -20,20 +23,9 @@ public class WeaponHandling : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            if (Player && Input.GetButtonDown(Player.pickButton) && Weapon && Weapon.pickable == true)//pick up weapon
-            {
-                pickWeapon();
-                if (isServer)
-                {
-                    RpcpickWeapon();
-                }
-                else
-                {
-                    CmdpickWeapon();
-                }
-            }
             if (Input.GetKey(KeyCode.Q) && Player && Player.getActiveWeapon() > 0) // drop down weapon
             {
+                Player.getWeapons()[Player.getActiveWeapon()].Toggle(false);
                 dropWeapon();
                 if (isServer)
                 {
@@ -103,52 +95,81 @@ public class WeaponHandling : NetworkBehaviour
     }
     void OnTriggerStay(Collider other)
     {
-        Player = this.GetComponent<ShootBehaviour>();
-        Weapon = other.GetComponent<InteractiveWeapon>();
+        if (!isLocalPlayer)
+            return;
         if (other.tag == "Gun")
         {
-            //Weapon = other.GetComponent<InteractiveWeapon>();
-            Weapon.pickable = true;
-            //Weapon.TooglePickupHUD(true);
+            InteractiveWeapon tempWeapon = other.GetComponent<InteractiveWeapon>();
+            tempWeapon.pickable = true;
+            tempWeapon.TooglePickupHUD(true, this.playerCamera);
+            if (Input.GetButtonDown(Player.pickButton) && tempWeapon && tempWeapon.pickable == true)//pick up weapon
+            {
+                this.Weapon = tempWeapon;
+                if (Weapon.label == "AWM")
+                {
+                    Player.shotRateFactor = 0.1f;
+                }
+                else
+                {
+                    Player.shotRateFactor = 1f;
+                }
+                Player.AddWeapon(Weapon);
+                tempWeapon.TooglePickupHUD(false, this.playerCamera);
+                Weapon.Toggle(true);
+                if (isServer)
+                {
+                    RpcpickWeapon(this.Weapon.id);
+                }
+                else
+                {
+                    CmdpickWeapon(this.Weapon.id);
+                }
+            }
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        if (isLocalPlayer)
+        if (!isLocalPlayer)
+            return;
+        if (other.tag == "Gun" )
         {
-            if (other.tag == "Gun" && Weapon)
-            {
-                Weapon.pickable = false;
-                //Weapon.TooglePickupHUD(false);
-            }
+            InteractiveWeapon tempWeapon = other.GetComponent<InteractiveWeapon>();
+            tempWeapon.pickable = false;
+            tempWeapon.TooglePickupHUD(false, this.playerCamera);
         }
     }
     //************************//
     [Command]
-    void CmdpickWeapon()
+    void CmdpickWeapon(string weaponId)
     {
         if (isServer)
         {
-            pickWeapon();
+            pickWeapon(weaponId);
         }
-        RpcpickWeapon();
+        RpcpickWeapon(weaponId);
     }
     [ClientRpc]
-    void RpcpickWeapon()
+    void RpcpickWeapon(string weaponId)
     {
         if (!isLocalPlayer && !isServer)
         {
-            pickWeapon();
+            pickWeapon(weaponId);
         }
     }
-    void pickWeapon()
+    void pickWeapon(string weaponId)
     {
-        Player.AddWeapon(Weapon);
-        if (!isLocalPlayer)
-            return;
-        //Weapon.TooglePickupHUD(false);
-        //Weapon.Toggle(true);
+        InteractiveWeapon[] pickedWeapon = GameObject.FindObjectsOfType<InteractiveWeapon>();
+        foreach (InteractiveWeapon w in pickedWeapon)
+        {
+            if (w.id == weaponId)
+            {
+                w.TooglePickupHUD(false, playerCamera);
+                this.Weapon = w;
+                this.Player.AddWeapon(this.Weapon);
 
+                return;
+            }
+        }
     }
     /*****************************************/
     [Command]
@@ -168,13 +189,16 @@ public class WeaponHandling : NetworkBehaviour
             dropWeapon();
         }
     }
-    void dropWeapon()
+    public void dropWeapon()
     {
+        if (!Player || Player.getActiveWeapon() == 0)
+            return;
         Player.EndReloadWeapon();
         int weaponToDrop = Player.getActiveWeapon();
         Player.ChangeWeapon(Player.getActiveWeapon(), 0);
         Player.getWeapons()[weaponToDrop].Drop();
         Player.getWeapons()[weaponToDrop] = null;
+        this.Weapon = null;
     }
     /********************************************/
     [Command]
@@ -201,24 +225,23 @@ public class WeaponHandling : NetworkBehaviour
         Player.setShotalive(true);
     }
     [Command]
-    void Cmdplaysound()
+    void CmdplaySound()
     {
         if (isServer)
         {
-            playsound1();
+            RaycastShooting();
         }
-        Rpcplaysound();
+        RpcplaySound();
     }
     [ClientRpc]
-    void Rpcplaysound()
+    void RpcplaySound()
     {
         if (!isLocalPlayer && !isServer)
         {
-            playsound1();
+            RaycastShooting();
         }
     }
-    [Client]
-    public void playsound1()
+    public void RaycastShooting()
     {
         float shotErrorRate = 0.02f;
         int shotMask = shotMask = ~((1 << LayerMask.NameToLayer("Ignore Shot")) | 1 << LayerMask.NameToLayer("Ignore Raycast"));
@@ -251,7 +274,7 @@ public class WeaponHandling : NetworkBehaviour
             Vector3 destination = (ray.direction * 500f) - ray.origin;
             // Handle shot effects without a specific target.
             //Player.DrawShoot(Player.getWeapons()[Player.getActiveWeapon()].gameObject, destination, Vector3.up, null, false, false);
-            this.setFlash(playerCamera.transform, hit.point);
+            this.setFlash(Player.getMuzzle(), destination);
         }
         Player.getWeapons()[Player.getActiveWeapon()].OnShooting();
 
@@ -270,16 +293,16 @@ public class WeaponHandling : NetworkBehaviour
         }
     }
 
-    public void playsound()
+    public void playSound()
     {
-        playsound1();
+        RaycastShooting();
         if (isServer)
         {
-            Rpcplaysound();
+            RpcplaySound();
         }
         else
         {
-            Cmdplaysound();
+            CmdplaySound();
         }
     }
     /***************************/

@@ -1,8 +1,6 @@
 ﻿
 using UnityEngine;
 using UnityEngine.Networking;
-// disabling the scripts for non local player objects
-// when a player die this script will freeze the player. before destroying the gameobject.
 [RequireComponent(typeof(HealthManager))]
 public class NetwrokBehaviour : NetworkBehaviour
 {
@@ -22,7 +20,7 @@ public class NetwrokBehaviour : NetworkBehaviour
         }
         string _playerID = "Player " + GetComponent<NetworkIdentity>().netId;
         this.transform.name = _playerID;
-        GameManager.instance.RegisterPlayer(this.transform.name, GetComponent<HealthManager>());
+        GameManager.instance.RegisterPlayer(this.transform.name, GetComponent<HealthManager>(),GetComponent<StatusManager>());
     }
     /*private void OnDisable()
     {

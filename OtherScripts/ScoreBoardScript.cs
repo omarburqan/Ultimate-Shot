@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-// the scripts which manages adding the player name,score,team,color,and status)
+
 public class ScoreBoardScript : NetworkBehaviour {
     [SerializeField]
     GameObject playerScoreBoardItem;

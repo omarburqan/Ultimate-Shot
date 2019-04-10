@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-/// <summary>
-///  this class corresponds to disable not local players to interact with other players scripts.
-/// </summary>
 [RequireComponent(typeof(CarHealthManager))]
 public class DisableCom : NetworkBehaviour {
     [SerializeField]
@@ -22,7 +19,7 @@ public class DisableCom : NetworkBehaviour {
         }
         string _playerID = "Driver " + GetComponent<NetworkIdentity>().netId;
         this.transform.name = _playerID;
-        GameManager.instance.RegisterDriver(this.transform.name, GetComponent<CarHealthManager>());
+        GameManager.instance.RegisterDriver(this.transform.name, GetComponent<CarHealthManager>(),GetComponent<StatusManager>());
     }
 
     /*private void OnDisable()
@@ -37,5 +34,6 @@ public class DisableCom : NetworkBehaviour {
         {
                 ComToDisable[i].enabled = false;
         }
+        this.GetComponent<RCC_CarControllerV3>().enabled = false;
     }
 }
