@@ -3,7 +3,13 @@
 // FlyBehaviour inherits from GenericBehaviour. This class corresponds to the flying behaviour.
 public class FlyBehaviour : GenericBehaviour
 {
-	public string flyButton = "Fly";              // Default fly button.
+    
+    public float Flypoints = 100;
+    [SerializeField]
+    private float maxFlyPower = 100;
+    [SerializeField]
+    public RectTransform flyBar;
+    public string flyButton = "Fly";              // Default fly button.
 	public float flySpeed = 4.0f;                 // Default flying speed.
 	public float sprintFactor = 2.0f;             // How much sprinting affects fly speed.
 	public float flyMaxVerticalAngle = 60f;       // Angle to clamp camera vertical movement when flying.
@@ -20,6 +26,8 @@ public class FlyBehaviour : GenericBehaviour
 		col = this.GetComponent<CapsuleCollider>();
 		// Subscribe this behaviour on the manager.
 		behaviourManager.SubscribeBehaviour(this);
+        this.Flypoints = maxFlyPower;
+        SetHealthAmout(Flypoints / maxFlyPower);
 	}
 
 	// Update is used to set features regardless the active behaviour.
@@ -27,7 +35,7 @@ public class FlyBehaviour : GenericBehaviour
 	{
 		// Toggle fly by input, only if there is no overriding state or temporary transitions.
 		if (Input.GetButtonDown(flyButton) && !behaviourManager.IsOverriding() 
-			&& !behaviourManager.GetTempLockStatus(behaviourManager.GetDefaultBehaviour))
+			&& !behaviourManager.GetTempLockStatus(behaviourManager.GetDefaultBehaviour) && Flypoints > 0 )
 		{
 			fly = !fly;
 
@@ -60,10 +68,43 @@ public class FlyBehaviour : GenericBehaviour
 
 		// Set fly related variables on the Animator Controller.
 		behaviourManager.GetAnim.SetBool(flyBool, fly);
-	}
 
-	// This function is called when another behaviour overrides the current one.
-	public override void OnOverride()
+        if (fly)
+        {
+            if (Flypoints <= 0)
+            {
+                fly = !fly;
+                // Force end jump transition.
+                behaviourManager.UnlockTempBehaviour(behaviourManager.GetDefaultBehaviour);
+                // Obey gravity. It's the law!
+                behaviourManager.GetRigidBody.useGravity = !fly;
+                // Set collider direction to vertical.
+                col.direction = 1;
+                // Set camera default offset.
+                behaviourManager.GetCamScript.ResetTargetOffsets();
+                // Unregister this behaviour and set current behaviour to the default one.
+                behaviourManager.UnregisterBehaviour(this.behaviourCode);
+                return;
+            }
+            this.Flypoints -= Time.deltaTime*10;
+            SetHealthAmout(this.Flypoints / maxFlyPower);
+        }
+    }
+
+    public void SetHealthAmout(float Amount)
+    {
+        if (Amount < 0)
+            Amount = 0;
+        flyBar.localScale = new Vector3(1f, Amount, 1f);
+    }
+    public void setFlyPoints()
+    {
+        this.Flypoints = maxFlyPower;
+        SetHealthAmout(Flypoints / maxFlyPower);
+    }
+
+    // This function is called when another behaviour overrides the current one.
+    public override void OnOverride()
 	{
 		// Ensure the collider will return to vertical position when behaviour is overriden.
 		col.direction = 1;

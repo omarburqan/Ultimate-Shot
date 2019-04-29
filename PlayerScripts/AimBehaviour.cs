@@ -17,7 +17,11 @@ public class AimBehaviour : GenericBehaviour
     private Vector3 initialRootRotation;                                  // Initial root bone local rotation.
     private Vector3 initialHipsRotation;                                  // Initial hips rotation related to the root bone.
     private Vector3 initialSpineRotation;                                 // Initial spine rotation related to the root bone.
-
+    public GameObject scopeOverlay;
+    [SerializeField]
+    private WeaponHandling playerInventory;
+    [SerializeField]
+    private Camera playerCamera;
     // Start is always called after any Awake functions.
     void Start()
     {
@@ -30,6 +34,7 @@ public class AimBehaviour : GenericBehaviour
         initialRootRotation = behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.Hips).parent.localEulerAngles;
         initialHipsRotation = behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.Hips).localEulerAngles;
         initialSpineRotation = behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.Spine).localEulerAngles;
+        
     }
 
     // Update is used to set features regardless the active behaviour.
@@ -77,6 +82,7 @@ public class AimBehaviour : GenericBehaviour
         // Start aiming.
         else
         {
+            
             aim = true;
             int signal = 1;
             if (peekCorner)
@@ -86,6 +92,15 @@ public class AimBehaviour : GenericBehaviour
             aimCamOffset.x = Mathf.Abs(aimCamOffset.x) * signal;
             aimPivotOffset.x = Mathf.Abs(aimPivotOffset.x) * signal;
             yield return new WaitForSeconds(0.1f);
+            if (this.GetComponent<WeaponHandling>().Weapon)
+            {
+                if (this.GetComponent<WeaponHandling>().Weapon.label == "AWM")
+                {
+                    playerCamera.fieldOfView = 10f;
+                    scopeOverlay.SetActive(aim);
+
+                }
+            }
             behaviourManager.GetAnim.SetFloat(speedFloat, 0);
             // This state overrides the active one.
             behaviourManager.OverrideWithBehaviour(this);
@@ -101,6 +116,8 @@ public class AimBehaviour : GenericBehaviour
         behaviourManager.GetCamScript.ResetMaxVerticalAngle();
         yield return new WaitForSeconds(0.05f);
         behaviourManager.RevokeOverridingBehaviour(this);
+        scopeOverlay.SetActive(aim);
+        playerCamera.fieldOfView = 60f;
     }
 
     // LocalFixedUpdate overrides the virtual function of the base class.
@@ -162,10 +179,25 @@ public class AimBehaviour : GenericBehaviour
         if (crosshair)
         {
             float mag = behaviourManager.GetCamScript.GetCurrentPivotMagnitude(aimPivotOffset);
+            
             if (mag < 0.05f)
-                GUI.DrawTexture(new Rect(Screen.width / 2 - (crosshair.width * 0.5f),
-                                         Screen.height / 2 - (crosshair.height * 0.5f),
-                                         crosshair.width, crosshair.height), crosshair);
+            {
+                if (playerInventory.Weapon)
+                {
+                    if (playerInventory.Weapon.label != "AWM")
+                    {
+                        GUI.DrawTexture(new Rect(Screen.width / 2 - (crosshair.width * 0.5f),
+                                        Screen.height / 2 - (crosshair.height * 0.5f),
+                                        crosshair.width, crosshair.height), crosshair);
+                    }
+                }
+                else
+                {
+                    GUI.DrawTexture(new Rect(Screen.width / 2 - (crosshair.width * 0.5f),
+                                        Screen.height / 2 - (crosshair.height * 0.5f),
+                                        crosshair.width, crosshair.height), crosshair);
+                }
+            }   
         }
     }
 }

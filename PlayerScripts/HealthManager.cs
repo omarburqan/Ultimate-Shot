@@ -79,7 +79,7 @@ public class HealthManager : NetworkBehaviour
         {
             SetHealthAmout(this.Healthpoints / maxHealth);
             CheckHealth();
-            if (teamMate && teamMate.Team == this.Team)
+           /* if (teamMate && teamMate.Team == this.Team)
             {
                 if (teamMate.Exploded) // if team mate lost as the shooter lose
                 {
@@ -96,7 +96,7 @@ public class HealthManager : NetworkBehaviour
                         this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
                     }
                 }
-            }
+            }*/
         }
         if (!this.disabledCanvas) // keep checking untill all players are ready in order to disable Nameplates for non team member.
         {
@@ -332,5 +332,8 @@ public class HealthManager : NetworkBehaviour
         SpectateTeamMate();
 
     }
-    
+    public void SetHealthPoints()
+    {
+        Healthpoints = maxHealth;
+    }
 }
