@@ -37,7 +37,9 @@ public class StatusManager : NetworkBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.T))
         {
-            PlayerUpgrade();
+            this.countDown = true;
+            maptoLoad = "Map4WD";
+           
         }
     }
     [ClientRpc]
