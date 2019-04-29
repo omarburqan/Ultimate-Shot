@@ -39,20 +39,15 @@ using UnityEngine;
     {
         if (!isLocalPlayer)
             return;
-        if (Input.GetKeyDown(KeyCode.J))
-        {
+        
             /*GameObject []Mapname; // all the map names
             if (mapnumber >= Mapname.Length())
                 mapnumber = 0;
            int map = Random.Range(mapnumber, Mapname.Length());
             swap(Mapname[mapnumber], Mapname[map]);
             mapnumber += 1;*/
-            if (this.GetComponent<StatusManager>().maptoLoad != "")
-            {
-                return;
-            }
-            LoadNextLevel();
-        }
+            
+        
     }
       
         void OnTriggerEnter(Collider other)

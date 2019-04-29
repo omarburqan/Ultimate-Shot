@@ -14,12 +14,19 @@ public class CarHealthManager : NetworkBehaviour
     public AudioClip[] ExplosionSound;
     public string teamMate;
     [SyncVar]
-    private float Healthpoints = 100;
+    private float Healthpoints = 200;
     [SerializeField]
-    private float maxHealth = 100;
+    private float maxHealth = 200;
     [SerializeField]
-    public int Score = 0;
     public RectTransform HealthBar;
+    [SyncVar]
+    private float Defendpoints = 100;
+    [SerializeField]
+    private float maxDefence = 100;
+    [SerializeField]
+    public RectTransform DefenceBar;
+
+    public int Score = 0;
     private bool HasSmoke;
     private bool HasFire;
     [SerializeField]
@@ -42,6 +49,9 @@ public class CarHealthManager : NetworkBehaviour
         this.disabledCanvas = false;
         canvas.SetActive(false);
         this.Healthpoints = maxHealth;
+        this.Defendpoints = maxDefence;
+        SetHealthAmout(this.Healthpoints / maxHealth);
+        SetDefendAmout(this.Defendpoints / maxDefence);
         this.HasSmoke = false;
         this.HasFire = false;
         this.Exploded = false;
@@ -54,11 +64,13 @@ public class CarHealthManager : NetworkBehaviour
         if (!Exploded)
         {
             SetHealthAmout(this.Healthpoints / maxHealth);
+            SetDefendAmout(this.Defendpoints / maxDefence);
             CheckHealth();
         }
         if (Input.GetKeyDown(KeyCode.H))
         {
-            this.Healthpoints -= 25;
+            this.Defendpoints -= 10;
+            this.Healthpoints -= 90;
         }
         if (!this.disabledCanvas)
         {
@@ -102,7 +114,15 @@ public class CarHealthManager : NetworkBehaviour
         {
             return;
         }
-        this.Healthpoints -= damage/3;
+        if (Defendpoints > 0)
+        {
+            this.Healthpoints -= damage / 3;
+            this.Defendpoints -= damage;
+        }
+        else
+        {
+            this.Healthpoints -= damage / 2;
+        }
         RpcAddForce(direction);
         print(this.transform.name + " " + Healthpoints);
         if (Healthpoints <= 0)
@@ -127,6 +147,12 @@ public class CarHealthManager : NetworkBehaviour
         if (Amount < 0)
             Amount = 0;
         HealthBar.localScale = new Vector3(1f, Amount, 1f);
+    }
+    private void SetDefendAmout(float Amount)
+    {
+        if (Amount < 0)
+            Amount = 0;
+        DefenceBar.localScale = new Vector3(1f, Amount, 1f);
     }
     /****************************************/
     private void CheckHealth()
@@ -257,5 +283,13 @@ public class CarHealthManager : NetworkBehaviour
         yield return new WaitForSeconds(4);
         
     }*/
+    public void SetHealthPoints()
+    {
+        Healthpoints = maxHealth;
+    }
+    public void SetDefendPoints()
+    {
+        Defendpoints = maxDefence;
+    }
 }
 
