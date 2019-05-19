@@ -17,11 +17,6 @@ public class DisableCarCamera : MonoBehaviour {
             Destroy(gameObject);
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
     public void DisableCamera() // in order to prevent the camera of shooter to join the camera of the driver
     {
         this.Cam.SetActive(false);

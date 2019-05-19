@@ -3,6 +3,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
+
 // This is a template script for in-game object health manager.
 // Any in-game entity that reacts to a shot must have this script with the public function TakeDamage().
 
@@ -34,7 +36,7 @@ public class HealthManager : NetworkBehaviour
     [SyncVar]
     public int Numofplayers;
     private bool disabledCanvas;
-    
+    public bool hasDefened;
   
     public bool getLost()
     {
@@ -63,7 +65,7 @@ public class HealthManager : NetworkBehaviour
             GameManager.instance.Laps[2].SetActive(true);
             GameManager.instance.Laps[3].SetActive(false);
         }
-        
+        hasDefened = false;
     }
     // This is the mandatory function that receives damage from shots.
     // You may remove the 'virtual' keyword before coding the content.
@@ -73,7 +75,7 @@ public class HealthManager : NetworkBehaviour
             return;
         if (Input.GetKeyDown(KeyCode.J))
         {
-            this.Healthpoints -= 10;
+            this.Healthpoints -= 30;
         }
         if (this.Lost == false) // check match status according to his team-mate
         {
@@ -216,9 +218,15 @@ public class HealthManager : NetworkBehaviour
     
     private void OnCollisionStay(Collision collision) // Die by car run over 
     {
+       
         float minimumCollisionForce = 10f;
         if (this.gameObject.tag=="Player" && collision.gameObject.tag == "DriverPlayer" && collision.relativeVelocity.magnitude > minimumCollisionForce)
         {
+            if (hasDefened)
+            {
+                hasDefened = false;
+                return;
+            }
             this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionY;
             this.gameObject.GetComponent<CapsuleCollider>().isTrigger = true;
             if (!isLocalPlayer)
@@ -283,7 +291,21 @@ public class HealthManager : NetworkBehaviour
     }
     public void TakeDamage(/*Vector3 location,Vector3 direction,*/float damage,string Killer)
     {
-        if (this.Healthpoints <= 0 || GameManager.instance.getPlayer(Killer).Team == this.Team)
+        if (Killer.IndexOf("Driver") == -1)
+        {
+            if (GameManager.instance.getPlayer(Killer).Team == this.Team)
+            {
+                return;
+            }
+        }
+        else if (Killer.IndexOf("Driver") != -1)
+        {
+            if (GameManager.instance.getDriver(Killer).Team == this.Team)
+            {
+                return;
+            }
+        }
+        if (this.Healthpoints <= 0)
         {
             return;
         }
@@ -296,8 +318,16 @@ public class HealthManager : NetworkBehaviour
     [ClientRpc]
     void RpcEditScore(string Killer)
     {
-        HealthManager player = GameManager.instance.getPlayer(Killer);
-        player.Kills++;
+        try
+        {
+            HealthManager player = GameManager.instance.getPlayer(Killer);
+            player.Kills += 1;
+        }
+        catch
+        {
+            CarHealthManager player = GameManager.instance.getDriver(Killer);
+            player.Score += 1;
+        }
     }
     /******************************************************/
     [Command]
@@ -335,5 +365,30 @@ public class HealthManager : NetworkBehaviour
     public void SetHealthPoints()
     {
         Healthpoints = maxHealth;
+    }
+    private void OnParticleCollision(GameObject other)
+    {
+        if (!isLocalPlayer)
+            return;
+        if (other.gameObject.tag == "PlasmaShock")
+        {
+            this.Healthpoints -= 39;
+            if (!isServer)
+            {
+                CmdSyncHealth();
+            }
+            StartCoroutine(DelaySecond());
+        }
+    }
+    [Command]
+    void CmdSyncHealth()
+    {
+        this.Healthpoints -= 39;
+    }
+    IEnumerator DelaySecond()
+    {   
+        this.GetComponent<NetwrokBehaviour>().FreezePlayer();
+        yield return new WaitForSeconds(2);
+        this.GetComponent<NetwrokBehaviour>().unFreezePlayer();
     }
 }

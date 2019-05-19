@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections.Generic;
-
+using System.Collections;
 
 namespace Prototype.NetworkLobby
 {
@@ -44,6 +44,10 @@ namespace Prototype.NetworkLobby
         //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
 
+        private void Update()
+        {
+            
+        }
         public void CmddropdownIndexChanged(int x)
         {
             if (!isLocalPlayer)
@@ -52,7 +56,7 @@ namespace Prototype.NetworkLobby
             {
                 OnMyCharacterSelect(x);
                 LobbyManager.s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient, x);
-                Rpctellother(x);
+                //Rpctellother(x);
             }
             else
             {
@@ -60,6 +64,14 @@ namespace Prototype.NetworkLobby
                 LobbyManager.s_Singleton.SetPlayerTypeLobby(GetComponent<NetworkIdentity>().connectionToClient, x);
                 Cmdtellother(x);
             }
+            if(x==1)
+                StartCoroutine(DestroyOldMap());
+        }
+        IEnumerator DestroyOldMap()
+        {
+            yield return new WaitForEndOfFrame();
+            this.transform.parent.parent.parent.gameObject.SetActive(false);
+
         }
         [Command]
         void CmdOnMyCharacterSelect(int index)
@@ -79,16 +91,16 @@ namespace Prototype.NetworkLobby
             {
                 LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
             }
-            Rpctellother(x);
+            //Rpctellother(x);
         }
-        [Client]
+        /*[Client]
         void Rpctellother(int x)
         {
             if(!isLocalPlayer && !isServer)
             {
                 LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
             }
-        }
+        }*/
         /*****************************/
         public void TeamSelect(int x)
         {
@@ -229,6 +241,7 @@ namespace Prototype.NetworkLobby
 
         public override void OnClientReady(bool readyState)
         {
+
             if (readyState)
             {
                 ChangeReadyButtonColor(TransparentColor);
@@ -239,6 +252,8 @@ namespace Prototype.NetworkLobby
                 readyButton.interactable = false;
                 colorButton.interactable = false;
                 nameInput.interactable = false;
+                Dropdown.interactable = false;
+                DropdownTeam.interactable = false;
             }
             else
             {
@@ -250,13 +265,33 @@ namespace Prototype.NetworkLobby
                 readyButton.interactable = isLocalPlayer;
                 colorButton.interactable = isLocalPlayer;
                 nameInput.interactable = isLocalPlayer;
+                Dropdown.interactable = isLocalPlayer;
+                DropdownTeam.interactable = isLocalPlayer;
             }
         }
 
         public void OnPlayerListChanged(int idx)
         { 
             GetComponent<Image>().color = (idx % 2 == 0) ? EvenRowColor : OddRowColor;
-
+            int playersNumber =LobbyPlayerList._instance._players.Count;
+            if (playersNumber < 2)
+                return;
+            List<string> TeamsList = new List<string>();
+            for(int i = 0; i < playersNumber /*/2*/ ; i++)
+            {
+                TeamsList.Add("Team "+ (i+1).ToString());
+            }
+            DropdownTeam.ClearOptions();
+            DropdownTeam.AddOptions(TeamsList);
+            if(TeamValue != 0)
+            {
+                DropdownTeam.value = TeamValue;
+            }
+            else
+            {
+                DropdownTeam.value = idx / 2;
+                TeamValue = idx / 2;
+            }
         }
 
         ///===== callback from sync var
@@ -284,7 +319,9 @@ namespace Prototype.NetworkLobby
 
         public void OnReadyClicked()
         {
-            SendReadyToBeginMessage();
+            //if(LobbyPlayerList._instance.CheckInputValidation())
+                SendReadyToBeginMessage();
+                Cmdtellother(value + CharacterSelection.instance.getIndex());
         }
 
         public void OnNameChanged(string str)
@@ -390,4 +427,5 @@ namespace Prototype.NetworkLobby
             }
         }
     }
+    
 }

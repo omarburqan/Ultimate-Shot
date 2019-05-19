@@ -36,4 +36,14 @@ public class DisableCom : NetworkBehaviour {
         }
         this.GetComponent<RCC_CarControllerV3>().enabled = false;
     }
+    public void unFreezePlayer()
+    {
+        if (!isLocalPlayer)
+            return;
+        for (int i = 0; i < ComToDisable.Length; i++)
+        {
+            ComToDisable[i].enabled = true;
+        }
+        this.GetComponent<RCC_CarControllerV3>().enabled = true;
+    }
 }

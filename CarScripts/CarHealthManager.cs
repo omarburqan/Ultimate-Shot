@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+using Random = UnityEngine.Random;
 
 public class CarHealthManager : NetworkBehaviour
 {
@@ -110,7 +110,24 @@ public class CarHealthManager : NetworkBehaviour
     }
     public void TakeDamage(float damage, string Killer,Vector3 direction)
     {
-        if(this.Healthpoints <= 0 || GameManager.instance.getPlayer(Killer).Team == this.Team)
+        float forcePower = 0f;
+        if (Killer.IndexOf("Driver") == -1)
+        { 
+            if(GameManager.instance.getPlayer(Killer).Team == this.Team)
+            {
+                return;
+            }
+            forcePower = 3f;
+        }
+        else if (Killer.IndexOf("Driver") != -1)
+        {
+            if (GameManager.instance.getDriver(Killer).Team == this.Team)
+            {
+                return;
+            }
+            forcePower = 10f;
+        }
+        if (this.Healthpoints <= 0)
         {
             return;
         }
@@ -123,23 +140,29 @@ public class CarHealthManager : NetworkBehaviour
         {
             this.Healthpoints -= damage / 2;
         }
-        RpcAddForce(direction);
-        print(this.transform.name + " " + Healthpoints);
+        RpcAddForce(direction, forcePower);
         if (Healthpoints <= 0)
         {
             RpcEditScore(Killer);
         }
     }
     [ClientRpc]
-    void RpcAddForce(Vector3 direction)
+    void RpcAddForce(Vector3 direction,float forcePower)
     {
-        this.GetComponent<Rigidbody>().AddForce(direction * 3f, ForceMode.Impulse);
+        this.GetComponent<Rigidbody>().AddForce(direction * forcePower, ForceMode.Impulse);
     }
     [ClientRpc]
     void RpcEditScore(string Killer)
     {
-        HealthManager player= GameManager.instance.getPlayer(Killer);
-        player.Kills+=3;
+        try
+        {
+            HealthManager player = GameManager.instance.getPlayer(Killer);
+            player.Kills += 3;
+        }catch
+        {
+            CarHealthManager player = GameManager.instance.getDriver(Killer);
+            player.Score += 3;
+        }
     }
     /******************/
     private void SetHealthAmout(float Amount)
@@ -290,6 +313,38 @@ public class CarHealthManager : NetworkBehaviour
     public void SetDefendPoints()
     {
         Defendpoints = maxDefence;
+    }
+    private void OnParticleCollision(GameObject other)
+    {
+        if (!isLocalPlayer)
+            return;
+        if (other.gameObject.tag == "PlasmaShock")
+        {
+            int random = Random.Range(0,2);
+            print(random);
+            StartCoroutine(DelaySeconds(random));
+        }
+    }
+    IEnumerator DelaySeconds(int random)
+    {
+        if (random == 0)
+        {
+            this.GetComponent<DisableCom>().FreezePlayer();
+        }
+        else if (random == 1)
+        {
+            this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        }
+        yield return new WaitForSeconds(2);
+        if (random == 0)
+        {
+            this.GetComponent<DisableCom>().unFreezePlayer();
+        }
+        else if (random == 1)
+        {
+            this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        }
+
     }
 }
 

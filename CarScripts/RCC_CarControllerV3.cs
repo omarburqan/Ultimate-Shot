@@ -399,7 +399,7 @@ public class RCC_CarControllerV3 : MonoBehaviour {
 
 		// You can configurate wheels for best behavior, but Unity doesn't have docs about it.
 		allWheelColliders = GetComponentsInChildren<RCC_WheelCollider>();
-//		GetComponentInChildren<WheelCollider>().ConfigureVehicleSubsteps(10f, 1, 1);
+        //	GetComponentInChildren<WheelCollider>().ConfigureVehicleSubsteps(10f, 1, 1);
 
 		FrontLeftWheelCollider.wheelModel = FrontLeftWheelTransform;
 		FrontRightWheelCollider.wheelModel = FrontRightWheelTransform;
@@ -518,8 +518,11 @@ public class RCC_CarControllerV3 : MonoBehaviour {
 
 		currentGear = 0;
 		changingGear = false;
+        useNOS = false;
+        useTurbo = false;
+        useExhaustFlame = false;
 
-	}
+    }
 
 	private IEnumerator RCCPlayerSpawned(){
 
@@ -1731,12 +1734,22 @@ public class RCC_CarControllerV3 : MonoBehaviour {
 		}
 		
 	}
-	
-	void OnCollisionEnter (Collision collision){
-		if(collision.gameObject.tag == "Player" || collision.gameObject.tag == "Ragdoll" || collision.gameObject.tag == "Gun" )
+    private string[] tagToIngnore= { "PowerUpElectric", "PowerUpHealthBlue",
+        "PowerUpHealthRed", "PowerUpRocket", "Player", "Gun","Ragdoll","PowerUpEuro","PowerUpDollar" };
+
+
+    bool CollisionDetection(string tag)
+    {
+        foreach (string t in tagToIngnore)
         {
-            return;
+            if (t == tag)
+                return false;
         }
+        return true;
+    }
+	void OnCollisionEnter (Collision collision){
+        if (!CollisionDetection(collision.gameObject.tag))
+            return;
 		if (collision.contacts.Length < 1 || collision.relativeVelocity.magnitude < minimumCollisionForce)
 			return;
 
