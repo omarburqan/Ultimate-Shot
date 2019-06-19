@@ -70,7 +70,9 @@ public class CarHealthManager : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.H))
         {
             this.Defendpoints -= 10;
-            this.Healthpoints -= 90;
+            this.Healthpoints -= 30;
+            
+            
         }
         if (!this.disabledCanvas)
         {
@@ -133,12 +135,12 @@ public class CarHealthManager : NetworkBehaviour
         }
         if (Defendpoints > 0)
         {
-            this.Healthpoints -= damage / 3;
+            this.Healthpoints -= (damage / 3);
             this.Defendpoints -= damage;
         }
         else
         {
-            this.Healthpoints -= damage / 2;
+            this.Healthpoints -= (damage / 2);
         }
         RpcAddForce(direction, forcePower);
         if (Healthpoints <= 0)
