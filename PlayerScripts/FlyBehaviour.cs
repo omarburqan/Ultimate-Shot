@@ -86,7 +86,7 @@ public class FlyBehaviour : GenericBehaviour
                 behaviourManager.UnregisterBehaviour(this.behaviourCode);
                 return;
             }
-            this.Flypoints -= Time.deltaTime*10;
+            this.Flypoints -= Time.deltaTime*5;
             SetHealthAmout(this.Flypoints / maxFlyPower);
         }
     }

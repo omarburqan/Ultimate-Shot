@@ -22,10 +22,6 @@ public class NetwrokBehaviour : NetworkBehaviour
         this.transform.name = _playerID;
         GameManager.instance.RegisterPlayer(this.transform.name, GetComponent<HealthManager>(),GetComponent<StatusManager>());
     }
-    /*private void OnDisable()
-    {
-        GameManager.instance.UnRegisterPlayer(transform.name);
-    }*/
     public void FreezePlayer()
     {
         if (!isLocalPlayer)
@@ -34,6 +30,16 @@ public class NetwrokBehaviour : NetworkBehaviour
         {
             if(i!=4 && i!=5)
                 ComToDisable[i].enabled = false;
+        }
+    }
+    public void unFreezePlayer()
+    {
+        if (!isLocalPlayer)
+            return;
+        for (int i = 0; i < ComToDisable.Length; i++)
+        {
+            if (i != 4 && i != 5)
+                ComToDisable[i].enabled = true;
         }
     }
 }

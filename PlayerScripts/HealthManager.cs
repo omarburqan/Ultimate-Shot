@@ -56,15 +56,7 @@ public class HealthManager : NetworkBehaviour
         this.Healthpoints = maxHealth;
         anim = GetComponent<NetworkAnimator>();
         DisableCarCamera.instance.DisableCamera();
-        if (GameObject.FindGameObjectWithTag("MAP1"))
-        {
-            GameManager.instance.Laps[0].SetActive(true);
-            GameManager.instance.Laps[1].SetActive(false);
-        } else if (GameObject.FindGameObjectWithTag("MAP2"))
-        {
-            GameManager.instance.Laps[2].SetActive(true);
-            GameManager.instance.Laps[3].SetActive(false);
-        }
+        
         hasDefened = false;
     }
     // This is the mandatory function that receives damage from shots.
@@ -81,24 +73,15 @@ public class HealthManager : NetworkBehaviour
         {
             SetHealthAmout(this.Healthpoints / maxHealth);
             CheckHealth();
-           /* if (teamMate && teamMate.Team == this.Team)
+            if (teamMate && teamMate.Team == this.Team)
             {
                 if (teamMate.Exploded) // if team mate lost as the shooter lose
                 {
                     GameManager.instance.Lose();
                     this.Healthpoints = 0f;
                 }
-                if(teamMate.Score >= 50 ) // if my team mate has finished first lap 
-                {
-                    // changing the lap according to his team mate so he can protect him
-                    bool FINISHED = GameManager.instance.changeLap();
-                    if (FINISHED)
-                    {
-                        this.GetComponent<NetwrokBehaviour>().FreezePlayer();
-                        this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
-                    }
-                }
-            }*/
+                
+            }
         }
         if (!this.disabledCanvas) // keep checking untill all players are ready in order to disable Nameplates for non team member.
         {
