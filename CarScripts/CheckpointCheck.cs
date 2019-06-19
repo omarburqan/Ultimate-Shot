@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
     using UnityEngine.Networking;
 /// <summary>
@@ -8,45 +9,31 @@ using UnityEngine;
     public class CheckpointCheck : NetworkBehaviour {
 
         private bool[] CheckPointbool=new bool[10];
-        private int LapNumber;
+        public int levelNumber;
+        private Transform mesh;
         private void Start()
         {
             if (!isLocalPlayer)
                 return;
+            levelNumber = 1;
             for (int i = 0; i < CheckPointbool.Length; i++)
             {
                 CheckPointbool[i] = false;
             }
-            if (GameObject.FindGameObjectWithTag("MAP1"))
-            {
-                GameManager.instance.Laps[0].SetActive(true);
-                GameManager.instance.Laps[1].SetActive(false);
-                LapNumber = 0;
-                GameManager.instance.Laps[LapNumber].transform.Find("Checkpoint1").
-                    GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
-            }
-            else if (GameObject.FindGameObjectWithTag("MAP2"))
-            {
-                GameManager.instance.Laps[2].SetActive(true);
-                GameManager.instance.Laps[3].SetActive(false);
-                LapNumber = 2;
-                GameManager.instance.Laps[LapNumber].transform.Find("Checkpoint1").
-                    GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
-            }
+            GameObject.FindGameObjectWithTag("Checkpoint1").GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
         }
     //private int mapnumber = 0 ; // map number
     private void Update()
     {
         if (!isLocalPlayer)
             return;
-        
-            /*GameObject []Mapname; // all the map names
-            if (mapnumber >= Mapname.Length())
-                mapnumber = 0;
-           int map = Random.Range(mapnumber, Mapname.Length());
-            swap(Mapname[mapnumber], Mapname[map]);
-            mapnumber += 1;*/
-            
+
+        /*GameObject []Mapname; // all the map names
+        if (mapnumber >= Mapname.Length())
+            mapnumber = 0;
+       int map = Random.Range(mapnumber, Mapname.Length());
+        swap(Mapname[mapnumber], Mapname[map]);
+        mapnumber += 1;*/
         
     }
       
@@ -112,7 +99,7 @@ using UnityEngine;
                         if (CheckPointbool[7] == true)
                         {
                             CheckPointbool[8] = true;
-                            CalculateScore(other, "Finish");
+                            CalculateScore(other, "finish");
                         }
                         break;
                     case "finish":
@@ -141,20 +128,22 @@ using UnityEngine;
                             {
                                 CalculateScore(other," ",5); // 3RD PLACE
                             }
-                            bool FINISHED = GameManager.instance.changeLap();
-                            if (FINISHED)
+                            GameManager.instance.changeLap();
+                            if (levelNumber == 3)
                             {
                                 this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                                 this.GetComponent<DisableCom>().FreezePlayer();
                                 this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
+                                CmdEndGame();
                             }
                             else
                             {
+                                if (GetComponent<StatusManager>().maptoLoad != "")
+                                {
+                                    return;
+                                }
                                 LoadNextLevel();
                             }
-
-                            //this.transform.position = Position.transform.position;
-                            //this.transform.rotation = Position.transform.rotation;
                        //}
                         break;
                 }
@@ -223,6 +212,7 @@ using UnityEngine;
     }
     private void CalculateScore(Collider other, string nextCheck, int score = 0)
     {
+        print(this.GetComponent<CarHealthManager>().teamMate);
         if (!isLocalPlayer)
             return;
         other.gameObject.SetActive(false);
@@ -232,7 +222,7 @@ using UnityEngine;
             this.GetComponent<CarHealthManager>().Score += score;
         OnScoreChanged(this.GetComponent<CarHealthManager>().Score);
         if(nextCheck!=" ")
-            GameManager.instance.Laps[LapNumber].transform.Find(nextCheck).GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
+            GameObject.FindGameObjectWithTag(nextCheck).GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
 
     }
     [Command]
@@ -249,17 +239,41 @@ using UnityEngine;
         }
     }
     [Command]
+    void CmdEndGame()
+    {
+        StatusManager[] playersStatus = GameManager.instance.getAll();
+        foreach (StatusManager player in playersStatus)
+        {
+            if (player.transform.name != this.transform.name)
+            {
+                player.FinishPermission();
+            }
+        }
+    }
+    [Command]
     void CmdChangeMap(string mapName,string myName)
     {
         StatusManager[] playersStatus = GameManager.instance.getAll();
-
+        int shootersCounter = 0;
+        int carCounter = 1;
         foreach (StatusManager player in playersStatus)
         {
-            if(player.transform.name != this.name)
-                player.ChangeMap(mapName);
+            if (player.transform.name != this.transform.name)
+            {
+                if (player.transform.name.IndexOf("Driver") == -1)
+                {
+                    player.ChangeMap(mapName, shootersCounter);
+                    shootersCounter++;
+                }
+                else
+                {
+                    player.ChangeMap(mapName, carCounter);
+                    carCounter++;
+                }
+            }
         }
-        return;
     }
+   
     void LoadNextLevel()
     {
         int mapNumber = Random.Range(4, 6);
@@ -268,23 +282,44 @@ using UnityEngine;
 
         string[] timeArray = { "D", "N" };
         int mapTime = Random.Range(0, 1);
-
+        
         this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        this.transform.position = GameObject.FindGameObjectWithTag("SpawnPoints3").transform.position;
-        string mapName = "Map" + mapNumber.ToString() +
+        List<GameObject> spawnPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("SpawnPoints3"));
+        spawnPoints.Sort(CompareListByName);
+        this.transform.position = spawnPoints[1].transform.position;
+        /*string mapName = "Map" + mapNumber.ToString() +
                 semesterArray[mapSeason].ToString() +
-                timeArray[mapTime].ToString();
+                timeArray[mapTime].ToString();*/
 
-        Instantiate(Resources.Load("Map4WN") as GameObject);
+        GameObject map = Instantiate(Resources.Load("Map4SD") as GameObject);
+        mesh = map.transform.Find("Collision").gameObject.transform;
+        /*NetworkServer.Spawn(map);*/
         StartCoroutine(DestroyOldMap());
         StartCoroutine(FreezePlayer());
-        CmdChangeMap("Map4WN", this.name);
+        CmdChangeMap("Map4SD", this.name);
         this.GetComponent<StatusManager>().PlayerUpgrade();
+        StartCoroutine(SpawnPowers());
+        levelNumber += 1;
+
+    }
+
+    public Transform getCol()
+    {
+        return mesh;
     }
     IEnumerator FreezePlayer()
     {
         yield return new WaitForSeconds(.2f);
         this.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+    }
+    IEnumerator SpawnPowers()
+    {
+        yield return new WaitForSeconds(5f);
+        GetComponent<placePowerUps>().placePowerUp();
+        GetComponent<placePowerUps>().placeWeapons();
+        GameObject.FindGameObjectWithTag("Checkpoint1").GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
+
 
     }
     IEnumerator DestroyOldMap()
@@ -294,5 +329,13 @@ using UnityEngine;
             GameObject.FindGameObjectWithTag("MAP1").SetActive(false);
         else if(GameObject.FindGameObjectWithTag("MAP2"))
             GameObject.FindGameObjectWithTag("MAP2").SetActive(false);
+        else if (GameObject.FindGameObjectWithTag("Map#"))
+        {
+            GameObject.FindGameObjectWithTag("Map#").SetActive(false);
+        }
+    }
+    private static int CompareListByName(GameObject i1, GameObject i2)
+    {
+        return i1.name.CompareTo(i2.name);
     }
 }
