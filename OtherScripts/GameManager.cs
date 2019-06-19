@@ -18,8 +18,6 @@ public class GameManager : MonoBehaviour {
     public Text FirstPlaceText;
     public Text SecondPlaceText;
     public Text ThirdPlaceText;
-    public GameObject[] Laps;
-    public GameObject position;
     public bool stPlace;
     public bool ndPlace;
     public bool rdPlace;
@@ -120,34 +118,11 @@ public class GameManager : MonoBehaviour {
         return Allplayers.Keys;
     }
     /******************************************************/
-    public bool changeLap()
+    public void changeLap()
     {
-        bool Finished = false;
-        if (GameObject.FindGameObjectWithTag("MAP1"))
-        {
-            instance.Laps[0].SetActive(false);
-            if (Laps[1].activeInHierarchy == false) { // lap 2 will start 
-                instance.Laps[1].SetActive(true);
-            } 
-            else // finish of the game 
-            {
-                Finished = true;
-            }
-        }
-        else if (GameObject.FindGameObjectWithTag("MAP2"))
-        {
-            instance.Laps[2].SetActive(false);
-            if (Laps[3].activeInHierarchy == false) // lap 2 will start 
-                instance.Laps[3].SetActive(true);
-            else // finish of the game 
-            {
-                Finished = true;
-            }
-        }
         stPlace = false;
         ndPlace = false;
         rdPlace = false;
-        return Finished;
 
     }
     public void Lose() {

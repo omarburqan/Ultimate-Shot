@@ -8,12 +8,13 @@ public class placePowerUps : NetworkBehaviour
     Transform T;
     MeshCollider MC;
     public GameObject[] powerUps;
-    public int powerUpsCount = 5;
+    private int powerUpsCount;
     Vector3[] verts;
     // Use this for initialization
 
     public void placePowerUp()
     {
+        powerUpsCount = 400;
         T = GetComponent<CheckpointCheck>().getCol();
         MC = T.gameObject.GetComponent<MeshCollider>();
         Mesh M = MC.sharedMesh;
@@ -51,5 +52,25 @@ public class placePowerUps : NetworkBehaviour
     void Spawn(int randompu, Vector3 verts)
     {
         GameObject go2 = Instantiate(powerUps[randompu], verts, Quaternion.identity);
+        go2.transform.SetParent(GameObject.FindGameObjectWithTag("Map#").transform);
+    }
+    public void placeWeapons()
+    {
+        List<GameObject> spawnPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("SpawnPints3S"));
+        spawnPoints.Sort(CompareListByName);
+        
+    }
+
+
+
+
+
+
+
+
+
+    private static int CompareListByName(GameObject i1, GameObject i2)
+    {
+        return i1.name.CompareTo(i2.name);
     }
 }
