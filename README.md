@@ -21,7 +21,7 @@ in the game each play have a special power ups (restore healthpoints,ammo,nitrou
 ### Project Planning
 
 - [Project managment](https://github.com/omarburqan/Ultimate-Shot/projects/1)
-- [Project Issues](https://github.com/omarburqan/Ultimate-Shot/issues)
+- [Project Issues](https://github.com/omarburqan/Ultimate-Shot/issues?q=is%3Aissue+is%3Aclosed)
 
 ### Project Diary
 - [Diary page](https://github.com/omarburqan/Ultimate-Shot/wiki/Project-Diary)
