@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-// This is a template script for in-game object health manager.
+// This script for in-game object health manager.
 // Any in-game entity that reacts to a shot must have this script with the public function TakeDamage().
 
 public class HealthManager : NetworkBehaviour
@@ -262,7 +262,7 @@ public class HealthManager : NetworkBehaviour
         this.gameObject.SetActive(false);
         Destroy(this.gameObject,6);
     }
-    void SpectateTeamMate()
+    void SpectateTeamMate() // when this player dies
     {
         if (teamMate && teamMate.Exploded==false)
         {

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// class which handle player input and weapon interactiong (for example when player hits a weapon in ground if he choose to 
+//pickup he will pickup this weapon and sync to other players
+// also these scripts handle player shooting from weapon by using shootBehaviour script
 public class WeaponHandling : NetworkBehaviour
 {
     public InteractiveWeapon Weapon;
@@ -12,18 +15,13 @@ public class WeaponHandling : NetworkBehaviour
     
     public Camera playerCamera;
 
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {
         if (isLocalPlayer)
         {
-            if (Input.GetKey(KeyCode.Q) && Player && Player.getActiveWeapon() > 0) // drop down weapon
+            // drop down weapon
+            if (Input.GetKey(KeyCode.Q) && Player && Player.getActiveWeapon() > 0) 
             {
                 Player.getWeapons()[Player.getActiveWeapon()].Toggle(false);
                 dropWeapon();
@@ -61,6 +59,7 @@ public class WeaponHandling : NetworkBehaviour
                     CmdStopWeapon();
                 }
             }
+            // hide weapon 
             if (Player && Input.GetKey(KeyCode.Tab) && !Player.getIsChanging())
             {
                 Player.setIsChanging(true);
@@ -78,6 +77,7 @@ public class WeaponHandling : NetworkBehaviour
             {
                 Player.setIsChanging(false);
             }
+            // a special time between each time (shooting Rate)
             if (Player && Player.getShotalive())
             {
                 ShotDecai();
@@ -93,6 +93,7 @@ public class WeaponHandling : NetworkBehaviour
 
         }
     }
+    //player interaction with weapons
     void OnTriggerStay(Collider other)
     {
         if (!isLocalPlayer)
@@ -241,6 +242,7 @@ public class WeaponHandling : NetworkBehaviour
             RaycastShooting();
         }
     }
+    //shooting from weapon
     public void RaycastShooting()
     {
         float shotErrorRate = 0.02f;
@@ -279,6 +281,7 @@ public class WeaponHandling : NetworkBehaviour
         Player.getWeapons()[Player.getActiveWeapon()].OnShooting();
 
     }
+    // tell the server which object has been shot in order to take speical actions
     [Command]
     void CmdTelltheServer(string playerID,float damage,string Name,Vector3 direction)
     {
@@ -305,7 +308,7 @@ public class WeaponHandling : NetworkBehaviour
             CmdplaySound();
         }
     }
-    /***************************/
+    /*************** stop shooting from weapon     ************/
     [Command]
     void CmdStopWeapon()
     {
@@ -327,7 +330,7 @@ public class WeaponHandling : NetworkBehaviour
     {
         Player.setIsShooting(false);
     }
-    /*********************************************/
+    /*************  show or hide weapon  *****************/
     [Command]
     void CmdCHideWeapon()
     {
@@ -372,7 +375,7 @@ public class WeaponHandling : NetworkBehaviour
     {
         Player.ShotDecay();
     }
-    /*************/
+    /****** spawning bullet tracer      ******/
     public void setFlash(Transform gunMuzzle2,Vector3 destination)
     {
         GameObject instantShot = Instantiate(Player.shot, gunMuzzle2.position, Quaternion.LookRotation(destination - gunMuzzle2.position));

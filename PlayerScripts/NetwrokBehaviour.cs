@@ -1,6 +1,13 @@
 ﻿
 using UnityEngine;
 using UnityEngine.Networking;
+
+/// <summary>
+/// a class to control or manage the interrputing for each player scripting which will disable component for non local players
+/// also register for game manager to save this player attributes in special dictionary will the server will use for increasing score and decrease healthpoints
+/// or even to sync the status of the game for each player (Levels)
+/// </summary>
+
 [RequireComponent(typeof(HealthManager))]
 public class NetwrokBehaviour : NetworkBehaviour
 {
