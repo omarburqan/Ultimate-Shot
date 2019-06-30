@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Prototype.NetworkLobby;
 
+// a hook which recieve a special data after spawning the players which these data will be used in game (Nickname,color,team,....)
+
 public class NetworkLobbyHook : LobbyHook {
 
     public override void OnLobbyServerSceneLoadedForPlayer(NetworkManager manager, GameObject lobbyPlayer, GameObject gamePlayer)

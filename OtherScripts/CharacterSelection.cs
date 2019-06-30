@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// this class manage the car selection (previous,next) when choosing a car
 public class CharacterSelection : MonoBehaviour {
     public static CharacterSelection instance = null;
     public GameObject car;
@@ -41,7 +41,7 @@ public class CharacterSelection : MonoBehaviour {
     }
     public void Submit()
     {
-        print("sssssshimsssssss");
+        
         gameObj.SetActive(true);
     }
     public int getIndex()

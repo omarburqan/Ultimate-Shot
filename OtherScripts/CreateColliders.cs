@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+// this class create colliders on map (road,mountain) collider when spawning each map
 public class CreateColliders : MonoBehaviour {
     public GameObject[] collidersToAdd;
 	// Use this for initialization
@@ -13,7 +13,6 @@ public class CreateColliders : MonoBehaviour {
             collidersToAdd[0] = transform.Find("Cliffs").gameObject;
             collidersToAdd[1] = transform.Find("Ground").gameObject;
             collidersToAdd[2] = transform.Find("Repentances").gameObject;
-           // collidersToAdd[2] = transform.Find("Road").gameObject;
         }
         addColliders(collidersToAdd);
 		

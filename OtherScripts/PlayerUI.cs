@@ -1,14 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+// this class manage the players score-board in order to activate or deactivate it ....
 public class PlayerUI : MonoBehaviour {
     [SerializeField]
     public GameObject ScoreBoard;
-	// Use this for initialization
-	void Start () {
-		
-	}
+	
 	
 	// Update is called once per frame
 	void Update () {

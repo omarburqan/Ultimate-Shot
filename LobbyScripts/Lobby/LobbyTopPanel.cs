@@ -4,6 +4,7 @@ using System.Collections;
 
 namespace Prototype.NetworkLobby
 {
+    // display attributes about the game like (name,status(online/offlince),type of the connection(host/client))
     public class LobbyTopPanel : MonoBehaviour
     {
         public bool isInGame = false;

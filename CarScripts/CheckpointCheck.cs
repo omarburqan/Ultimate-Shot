@@ -10,7 +10,7 @@ using UnityEngine;
 
         private bool[] CheckPointbool=new bool[10];
         public int levelNumber;
-        private Transform mesh;
+        private Transform mesh; // the componet of the map which will be need to create a collider for roads
         private void Start()
         {
             if (!isLocalPlayer)
@@ -20,23 +20,10 @@ using UnityEngine;
             {
                 CheckPointbool[i] = false;
             }
+            //starting the first chechpoint color which is cyan
             GameObject.FindGameObjectWithTag("Checkpoint1").GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
         }
-    //private int mapnumber = 0 ; // map number
-    private void Update()
-    {
-        if (!isLocalPlayer)
-            return;
-
-        /*GameObject []Mapname; // all the map names
-        if (mapnumber >= Mapname.Length())
-            mapnumber = 0;
-       int map = Random.Range(mapnumber, Mapname.Length());
-        swap(Mapname[mapnumber], Mapname[map]);
-        mapnumber += 1;*/
-        
-    }
-      
+        // hande the player entering checkpoints in order to increase score or even change levels
         void OnTriggerEnter(Collider other)
         {
             if (isLocalPlayer) { 
@@ -103,8 +90,8 @@ using UnityEngine;
                         }
                         break;
                     case "finish":
-                       //if(CheckPointbool[8] == true)
-                       //{
+                       if(CheckPointbool[8] == true)
+                       {
                             CheckPointbool[9] = true;
                             string Place = GameManager.instance.DriverWinner();
                             SetPlace(Place);
@@ -144,7 +131,7 @@ using UnityEngine;
                                 }
                                 LoadNextLevel();
                             }
-                       //}
+                       }
                         break;
                 }
             }
@@ -221,10 +208,12 @@ using UnityEngine;
         if (score != 0)
             this.GetComponent<CarHealthManager>().Score += score;
         OnScoreChanged(this.GetComponent<CarHealthManager>().Score);
+        // change the next checkpoint color from red to cyan
         if(nextCheck!=" ")
             GameObject.FindGameObjectWithTag(nextCheck).GetComponent<MeshRenderer>().materials[0].color = Color.cyan;
 
     }
+    // disable current checkpoint when the player(driver) enter this checkpoint
     [Command]
     void CmdPartnerFollow(string CheckpointTag,string teamMate,string myName)
     {
@@ -287,13 +276,10 @@ using UnityEngine;
         List<GameObject> spawnPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("SpawnPoints3"));
         spawnPoints.Sort(CompareListByName);
         this.transform.position = spawnPoints[1].transform.position;
-        /*string mapName = "Map" + mapNumber.ToString() +
-                semesterArray[mapSeason].ToString() +
-                timeArray[mapTime].ToString();*/
+       
 
         GameObject map = Instantiate(Resources.Load("Map4SD") as GameObject);
         mesh = map.transform.Find("Collision").gameObject.transform;
-        /*NetworkServer.Spawn(map);*/
         StartCoroutine(DestroyOldMap());
         StartCoroutine(FreezePlayer());
         CmdChangeMap("Map4SD", this.name);
@@ -334,6 +320,7 @@ using UnityEngine;
             GameObject.FindGameObjectWithTag("Map#").SetActive(false);
         }
     }
+    // compare a list of string and sort it by names
     private static int CompareListByName(GameObject i1, GameObject i2)
     {
         return i1.name.CompareTo(i2.name);

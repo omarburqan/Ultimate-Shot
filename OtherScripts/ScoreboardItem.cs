@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// a class to initialize each score board item according to player properties
 public class ScoreboardItem : MonoBehaviour {
 
     [SerializeField]

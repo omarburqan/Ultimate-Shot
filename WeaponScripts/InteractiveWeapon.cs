@@ -35,8 +35,6 @@ public class InteractiveWeapon : NetworkBehaviour
     private int mag, totalBullets;                            // Current mag capacity and total amount of bullets being carried.
     private int fullMag, maxBullets;                          // Default mag capacity and total bullets for reset purposes.
     private GameObject gameController;                // References to the player and the game controller.
-    //private ShootBehaviour playerInventory;                   // Player's inventory to store weapons.
-    //private SphereCollider interactiveRadius;                 // In-game radius of interaction with player.
     public BoxCollider col;                                  // Weapon collider.
     public Rigidbody rbody;                                  // Weapon rigidbody.
     private WeaponUIManager weaponHud;                        // Reference to on-screen weapon HUD.
@@ -52,8 +50,7 @@ public class InteractiveWeapon : NetworkBehaviour
         {
             t.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
         }
-        //player = GameObject.FindGameObjectWithTag("Player"); // null because player isn't exist yet;
-        //playerInventory = player.GetComponent<ShootBehaviour>();
+        
         gameController = GameObject.FindGameObjectWithTag("GameController");
         // Assert that exists a on-screen HUD.
         if (GameObject.Find("ScreenHUD") == null)
@@ -95,38 +92,13 @@ public class InteractiveWeapon : NetworkBehaviour
         weaponHud.UpdateWeaponHUD(sprite, mag, fullMag, totalBullets);
     }
 
-// Handle weapon collision with environment.
-/* private void OnCollisionEnter(Collision collision)
- {
-     if (collision.collider.gameObject.tag != "Player" && Vector3.Distance(transform.position, player.transform.position) <= 5f)
-     {
-         AudioSource.PlayClipAtPoint(dropSound, transform.position, 0.5f);
-     }
- }*/
+
 public void OnShooting()
     {
         AudioSource.PlayClipAtPoint(shotSound, transform.position, 5f);
     }
 
-    /*// Handle player exiting radius of interaction.
-     private void OnTriggerExit(Collider other)
-     {
-         if (other.gameObject == player)
-         {
-             pickable = false;
-             TooglePickupHUD(false);
-         }
-     }*/
-
-    // Handle player within radius of interaction.
-    /*void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject == player && playerInventory && playerInventory.isActiveAndEnabled)
-        {
-            pickable = true;
-            TooglePickupHUD(true);
-        }
-    }*/
+    
 
     // Draw in-game weapon pickup label.
     public void TooglePickupHUD(bool toogle,Camera playerCamera)

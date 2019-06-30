@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-
+// this class manage spawning the powers up when changing from one level to other
 public class placePowerUps : NetworkBehaviour
 {
     Transform T;
@@ -10,7 +10,6 @@ public class placePowerUps : NetworkBehaviour
     public GameObject[] powerUps;
     private int powerUpsCount;
     Vector3[] verts;
-    // Use this for initialization
 
     public void placePowerUp()
     {
@@ -54,6 +53,7 @@ public class placePowerUps : NetworkBehaviour
         GameObject go2 = Instantiate(powerUps[randompu], verts, Quaternion.identity);
         go2.transform.SetParent(GameObject.FindGameObjectWithTag("Map#").transform);
     }
+    // spawing guns when changing levels(maps)
     public void placeWeapons()
     {
         List<GameObject> spawnPoints = new List<GameObject>(GameObject.FindGameObjectsWithTag("SpawnPints3S"));

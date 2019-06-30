@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-
+//List of players in the lobby
 namespace Prototype.NetworkLobby
 {
-    //List of players in the lobby
+    
     public class LobbyPlayerList : MonoBehaviour
     {
         public static LobbyPlayerList _instance = null;

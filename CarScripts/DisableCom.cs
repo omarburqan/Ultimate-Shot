@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+
+/// <summary>
+/// a class to control or manage the interrputing for each player scripting which will disable component for non local players
+/// also register for game manager to save this player attributes in special dictionary will the server will use for increasing score and decrease healthpoints
+/// or even to sync the status of the game for each player (Levels)
+/// </summary>
+
 [RequireComponent(typeof(CarHealthManager))]
 public class DisableCom : NetworkBehaviour {
     [SerializeField]
@@ -21,11 +28,7 @@ public class DisableCom : NetworkBehaviour {
         this.transform.name = _playerID;
         GameManager.instance.RegisterDriver(this.transform.name, GetComponent<CarHealthManager>(),GetComponent<StatusManager>());
     }
-
-    /*private void OnDisable()
-    {
-        GameManager.instance.UnRegisterDriver(transform.name);
-    }*/
+    // disable the player component when needed
     public void FreezePlayer()
     {
         if (!isLocalPlayer)
@@ -36,6 +39,7 @@ public class DisableCom : NetworkBehaviour {
         }
         this.GetComponent<RCC_CarControllerV3>().enabled = false;
     }
+    // enalbe the player component when needed
     public void unFreezePlayer()
     {
         if (!isLocalPlayer)

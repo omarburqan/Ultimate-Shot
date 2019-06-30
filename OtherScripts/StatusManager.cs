@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+// this class manage other players when someone get to the last checkpoint in order to finish the game or even get next level
+// also these class handle disactivating a checkpoint when his partner get to it
 public class StatusManager : NetworkBehaviour {
     private int team;
     [SerializeField]
@@ -32,7 +33,7 @@ public class StatusManager : NetworkBehaviour {
         position = 0;
         timeCounter.text = " ";
         if (name.IndexOf("Driver") == -1)
-        { // in case of shooting player(Shooter)
+        { // in case of  player(Shooter)
             isShooter = true;
             isDriver = false;
         }
@@ -47,21 +48,18 @@ public class StatusManager : NetworkBehaviour {
     void Update () {
         if (!isLocalPlayer)
             return;
-        if (countDown && maptoLoad != "")
+        if (countDown && maptoLoad != "") // changing level
         {
             timeCounter.text = timerInt.ToString();
             countDown = false;
             StartCoroutine(Timer());
         }
-        if (FinishFinal)
+        if (FinishFinal) // finish
         {
             FinishOfTheGame();
             FinishFinal = false;
         }
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            ChangeMap("Map4WD",1);
-        }
+
 
     }
     [ClientRpc]
@@ -147,6 +145,7 @@ public class StatusManager : NetworkBehaviour {
         this.maptoLoad = "";
         this.position = 0;
     }
+    // get the players upgarde after each level change
     public void PlayerUpgrade()
     {
         if (isShooter) // in case of player(Shooter)
@@ -189,6 +188,7 @@ public class StatusManager : NetworkBehaviour {
         this.GetComponent<PlayerUI>().ScoreBoard.SetActive(true);
         FinishFinal = false;
     }
+    // sort a list of string accroding to aplha
     private static int CompareListByName(GameObject i1, GameObject i2)
     {
         return i1.name.CompareTo(i2.name);

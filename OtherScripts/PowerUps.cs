@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+// a class to manager the player ineraction with power ups and for driver it also manager shooting (rocket,plazma,block ball)
 public class PowerUps : NetworkBehaviour
 {
     public ParticleSystem Rocket;
@@ -99,40 +100,8 @@ public class PowerUps : NetworkBehaviour
             Destroy(other.transform.parent.gameObject);
 
         }
-
-        /*if (other.CompareTag("PowerUp"))
-        {
-            Destroy(other.gameObject);
-            if (!isLocalPlayer)
-                return;
-            Pickup();
-            if (isServer)
-            {
-                RpcPickup();
-            }
-            else
-            {
-                CmdPickup(); 
-            }
-        }*/
     }
-    /*[Command]
-    void CmdPickup()
-    {
-        if (isServer)
-        {
-            Pickup();
-        }
-        RpcPickup();
-    }
-    [ClientRpc]
-    void RpcPickup()
-    {
-        if (!isLocalPlayer && !isServer)
-        {
-            Pickup();
-        }
-    }*/
+    // sync players attributes when taking power ups if needed like (healthpoints,defendpoints)
     private void Pickup(string powerUpType)
     {
         if(powerUpType == "PowerUpElectric")

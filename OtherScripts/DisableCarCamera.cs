@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+// this class disable the RCCCamera which stay in game scene in order to not make any wrong interruption
 public class DisableCarCamera : MonoBehaviour {
     public static DisableCarCamera instance = null;
     public GameObject Cam;

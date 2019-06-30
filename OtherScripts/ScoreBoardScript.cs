@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-
+// a class to initialize the score board when enabling it
 public class ScoreBoardScript : NetworkBehaviour {
     [SerializeField]
     GameObject playerScoreBoardItem;

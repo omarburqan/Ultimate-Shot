@@ -5,12 +5,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+// a class which manage the game which include a static attribute in order to access it from every where
 public class GameManager : MonoBehaviour {
     public static GameManager instance = null;
     private GameObject[] Players;
     private GameObject[] Drivers;
-    private static Dictionary<string, HealthManager> players = new Dictionary<string, HealthManager>();
+    // saving the players componenets in a dictionaries in order to get when needed
+    private static Dictionary<string, HealthManager> players = new Dictionary<string, HealthManager>(); 
     private static Dictionary<string, CarHealthManager> drivers = new Dictionary<string, CarHealthManager>();
     private static Dictionary<string, StatusManager> Allplayers = new Dictionary<string, StatusManager>();
     public Text WinText;
@@ -21,8 +22,7 @@ public class GameManager : MonoBehaviour {
     public bool stPlace;
     public bool ndPlace;
     public bool rdPlace;
-    public delegate void OnPlayerKilledCallback(string player,string source);
-    public OnPlayerKilledCallback onPlayerKilledCallback;
+    
     
 
 
@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour {
         ndPlace = false;
         rdPlace = false;
     }
-    /********************************************/
+    /************ these methods(register,unregister,get,set,getall,...) handle the players registertion to the dictionaries  ************/
     public void RegisterDriver(string _PlayerID, CarHealthManager _player , StatusManager playerStatus)
     {
         if (drivers.ContainsKey(_PlayerID))
@@ -117,7 +117,8 @@ public class GameManager : MonoBehaviour {
     {
         return Allplayers.Keys;
     }
-    /******************************************************/
+    /**********************************************************************************************/
+    // re init the places for each level
     public void changeLap()
     {
         stPlace = false;
@@ -125,6 +126,7 @@ public class GameManager : MonoBehaviour {
         rdPlace = false;
 
     }
+    // display lose or win text
     public void Lose() {
         LoseText.gameObject.SetActive(true);
         StartCoroutine(hideText(LoseText));
@@ -134,6 +136,7 @@ public class GameManager : MonoBehaviour {
         WinText.gameObject.SetActive(true);
         StartCoroutine(hideText(LoseText));
     }
+    // display 1st,2nd,3rd canvas when finish the race
     public string  DriverWinner()
     {
         string Special=" ";
@@ -157,11 +160,13 @@ public class GameManager : MonoBehaviour {
         }
         return Special ;
     }
+    // delay to hide the texts after special time
     IEnumerator hideText(Text text)
     {
         yield return new WaitForSeconds(5);
         text.gameObject.SetActive(false);
     }
+    // when disconnection
     private void OnDestroy()
     {
         drivers.Clear();

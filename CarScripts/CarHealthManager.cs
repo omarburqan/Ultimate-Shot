@@ -5,34 +5,42 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
+/// <summary>
+/// this class  will control or manage the player health and defense when being shot and spawn effects(explosion,smoke) when needed according to player health 
+/// </summary>
+
 public class CarHealthManager : NetworkBehaviour
 {
+    // efects for car to spawn when needed
     public GameObject SmokeEffect;
     public GameObject FireEffect;
     public GameObject Explosion;
     public GameObject Front;
+    // sound for car effects 
     public AudioClip[] ExplosionSound;
     public string teamMate;
     [SyncVar]
-    private float Healthpoints = 200;
+    private float Healthpoints = 200; // player health
     [SerializeField]
     private float maxHealth = 200;
     [SerializeField]
+    // health bar 
     public RectTransform HealthBar;
     [SyncVar]
-    private float Defendpoints = 100;
+    private float Defendpoints = 100; // // player defense
     [SerializeField]
     private float maxDefence = 100;
     [SerializeField]
+    // defence bar 
     public RectTransform DefenceBar;
 
     public int Score = 0;
-    private bool HasSmoke;
+    // boolean to not spawn effect more than 1 time
+    private bool HasSmoke; 
     private bool HasFire;
     [SerializeField]
     public bool Exploded;
     public GameObject canvas;
-    public GameObject BurntCar;
     [SyncVar]
     public int Team;
     [SyncVar]
@@ -67,13 +75,7 @@ public class CarHealthManager : NetworkBehaviour
             SetDefendAmout(this.Defendpoints / maxDefence);
             CheckHealth();
         }
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            this.Defendpoints -= 10;
-            this.Healthpoints -= 30;
-            
-            
-        }
+        // disabling other player canvas (name-plates)
         if (!this.disabledCanvas)
         {
             CarHealthManager[] drivers = GameManager.instance.getallDrivers();
@@ -110,6 +112,7 @@ public class CarHealthManager : NetworkBehaviour
             }
         }
     }
+    // handling player health when being hit
     public void TakeDamage(float damage, string Killer,Vector3 direction)
     {
         float forcePower = 0f;
@@ -148,6 +151,7 @@ public class CarHealthManager : NetworkBehaviour
             RpcEditScore(Killer);
         }
     }
+    // adding force for car when being shot by a bullet
     [ClientRpc]
     void RpcAddForce(Vector3 direction,float forcePower)
     {
@@ -166,7 +170,8 @@ public class CarHealthManager : NetworkBehaviour
             player.Score += 3;
         }
     }
-    /******************/
+    /******** Handling player bars (health,defense) **********/
+    
     private void SetHealthAmout(float Amount)
     {
         if (Amount < 0)
@@ -302,12 +307,7 @@ public class CarHealthManager : NetworkBehaviour
         Destroy(Effect, 3);
         Destroy(this.gameObject, 3);
     }
-    /*************************************/
-    /*IEnumerator DelaySeconds()
-    {
-        yield return new WaitForSeconds(4);
-        
-    }*/
+    
     public void SetHealthPoints()
     {
         Healthpoints = maxHealth;

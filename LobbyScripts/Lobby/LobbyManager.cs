@@ -9,6 +9,9 @@ using System.Collections.Generic;
 
 namespace Prototype.NetworkLobby
 {
+    // a singleton class which manages the main menu of lobby in order to play on lan or even get all the servers and connect to special one
+    // and also spawn the map and guns ,also after each player choose his type of player(driver,shooter),team,color,nickname 
+    //this class spawns the order prefab(game-object) 
     public class LobbyManager : NetworkLobbyManager
     {
         static short MsgKicked = MsgType.Highest + 1;
@@ -115,8 +118,6 @@ namespace Prototype.NetworkLobby
                 ChangeTo(null);
 
                 Destroy(GameObject.Find("MainMenuUI(Clone)"));
-
-                //backDelegate = StopGameClbk;
                 topPanel.isInGame = true;
                 topPanel.ToggleVisibility(false);
             }

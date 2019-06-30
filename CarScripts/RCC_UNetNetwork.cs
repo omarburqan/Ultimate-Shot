@@ -239,60 +239,6 @@ public class RCC_UNetNetwork : NetworkBehaviour {
 
 		yield return new WaitForSeconds (.02f);
 
-		// DıSABLED
-		//		VehicleConfigurations currentVehicleConfigurations = new VehicleConfigurations ();
-		//
-		//		currentVehicleConfigurations.gear = carController.currentGear;
-		//		currentVehicleConfigurations.direction = carController.direction;
-		//		currentVehicleConfigurations.changingGear = carController.changingGear;
-		//		currentVehicleConfigurations.semiAutomaticGear = carController.semiAutomaticGear;
-		//
-		//		currentVehicleConfigurations.fuelInput = carController.fuelInput;
-		//		currentVehicleConfigurations.engineRunning = carController.engineRunning;
-		//		currentVehicleConfigurations.cambers = new float[wheelColliders.Length];
-		//
-		//		for (int i = 0; i < wheelColliders.Length; i++) {
-		//
-		//			currentVehicleConfigurations.cambers[i] = wheelColliders[i].camber;
-		//
-		//		}
-		//
-		//		currentVehicleConfigurations.applyEngineTorqueToExtraRearWheelColliders = carController.applyEngineTorqueToExtraRearWheelColliders;
-		//		currentVehicleConfigurations.wheelTypeChoise = carController._wheelTypeChoise;
-		//		currentVehicleConfigurations.biasedWheelTorque = carController.biasedWheelTorque;
-		//		currentVehicleConfigurations.canGoReverseNow = carController.canGoReverseNow;
-		//		currentVehicleConfigurations.engineTorque = carController.engineTorque;
-		//		currentVehicleConfigurations.brakeTorque = carController.brakeTorque;
-		//		currentVehicleConfigurations.minEngineRPM = carController.minEngineRPM;
-		//		currentVehicleConfigurations.maxEngineRPM = carController.maxEngineRPM;
-		//		currentVehicleConfigurations.engineInertia = carController.engineInertia;
-		//		currentVehicleConfigurations.useRevLimiter = carController.useRevLimiter;
-		//		currentVehicleConfigurations.useExhaustFlame = carController.useExhaustFlame;
-		//		currentVehicleConfigurations.useClutchMarginAtFirstGear = carController.useClutchMarginAtFirstGear;
-		//		currentVehicleConfigurations.highspeedsteerAngle = carController.highspeedsteerAngle;
-		//		currentVehicleConfigurations.highspeedsteerAngleAtspeed = carController.highspeedsteerAngleAtspeed;
-		//		currentVehicleConfigurations.antiRollFrontHorizontal = carController.antiRollFrontHorizontal;
-		//		currentVehicleConfigurations.antiRollRearHorizontal = carController.antiRollRearHorizontal;
-		//		currentVehicleConfigurations.antiRollVertical = carController.antiRollVertical;
-		//		currentVehicleConfigurations.maxspeed = carController.maxspeed;
-		//		currentVehicleConfigurations.engineHeat = carController.engineHeat;
-		//		currentVehicleConfigurations.engineHeatMultiplier = carController.engineHeatRate;
-		//		currentVehicleConfigurations.totalGears = carController.totalGears;
-		//		currentVehicleConfigurations.gearShiftingDelay = carController.gearShiftingDelay;
-		//		currentVehicleConfigurations.gearShiftingThreshold = carController.gearShiftingThreshold;
-		//		currentVehicleConfigurations.clutchInertia = carController.clutchInertia;
-		//		currentVehicleConfigurations.NGear = carController.NGear;
-		//		currentVehicleConfigurations.launched = carController.launched;
-		//		currentVehicleConfigurations.ABS = carController.ABS;
-		//		currentVehicleConfigurations.TCS = carController.TCS;
-		//		currentVehicleConfigurations.ESP = carController.ESP;
-		//		currentVehicleConfigurations.steeringHelper = carController.steeringHelper;
-		//		currentVehicleConfigurations.tractionHelper = carController.tractionHelper;
-		//		currentVehicleConfigurations.applyCounterSteering = carController.applyCounterSteering;
-		//		currentVehicleConfigurations.useNOS = carController.useNOS;
-		//		currentVehicleConfigurations.useTurbo = carController.useTurbo;
-		//
-		//		CmdVehicleConfigurations (currentVehicleConfigurations);
 
 		CB_running = false;
 
@@ -346,59 +292,7 @@ public class RCC_UNetNetwork : NetworkBehaviour {
 
 		updateTime = Time.time;
 
-		// DıSABLED
-//		if (m_Configurations != null && m_Configurations.Count >= 1) {
-//
-//			carController.currentGear = m_Configurations[m_Configurations.Count - 1].gear;
-//			carController.direction = m_Configurations[m_Configurations.Count - 1].direction;
-//			carController.changingGear = m_Configurations[m_Configurations.Count - 1].changingGear;
-//			carController.semiAutomaticGear = m_Configurations[m_Configurations.Count - 1].semiAutomaticGear;
-//	
-//			carController.fuelInput = m_Configurations[m_Configurations.Count - 1].fuelInput;
-//			carController.engineRunning = m_Configurations[m_Configurations.Count - 1].engineRunning;
-//	
-//			for (int i = 0; i < wheelColliders.Length; i++) {
-//	
-//				wheelColliders [i].camber = m_Configurations[m_Configurations.Count - 1].cambers [i];
-//	
-//			}
-//	
-//			carController.applyEngineTorqueToExtraRearWheelColliders = m_Configurations[m_Configurations.Count - 1].applyEngineTorqueToExtraRearWheelColliders;
-//			carController._wheelTypeChoise = m_Configurations[m_Configurations.Count - 1].wheelTypeChoise;
-//			carController.biasedWheelTorque = m_Configurations[m_Configurations.Count - 1].biasedWheelTorque;
-//			carController.canGoReverseNow = m_Configurations[m_Configurations.Count - 1].canGoReverseNow;
-//			carController.engineTorque = m_Configurations[m_Configurations.Count - 1].engineTorque;
-//			carController.brakeTorque = m_Configurations[m_Configurations.Count - 1].brakeTorque;
-//			carController.minEngineRPM = m_Configurations[m_Configurations.Count - 1].minEngineRPM;
-//			carController.maxEngineRPM = m_Configurations[m_Configurations.Count - 1].maxEngineRPM;
-//			carController.engineInertia = m_Configurations[m_Configurations.Count - 1].engineInertia;
-//			carController.useRevLimiter = m_Configurations[m_Configurations.Count - 1].useRevLimiter;
-//			carController.useExhaustFlame = m_Configurations[m_Configurations.Count - 1].useExhaustFlame;
-//			carController.useClutchMarginAtFirstGear = m_Configurations[m_Configurations.Count - 1].useClutchMarginAtFirstGear;
-//			carController.highspeedsteerAngle = m_Configurations[m_Configurations.Count - 1].highspeedsteerAngle;
-//			carController.highspeedsteerAngleAtspeed = m_Configurations[m_Configurations.Count - 1].highspeedsteerAngleAtspeed;
-//			carController.antiRollFrontHorizontal = m_Configurations[m_Configurations.Count - 1].antiRollFrontHorizontal;
-//			carController.antiRollRearHorizontal = m_Configurations[m_Configurations.Count - 1].antiRollRearHorizontal;
-//			carController.antiRollVertical = m_Configurations[m_Configurations.Count - 1].antiRollVertical;
-//			carController.maxspeed = m_Configurations[m_Configurations.Count - 1].maxspeed;
-//			carController.engineHeat = m_Configurations[m_Configurations.Count - 1].engineHeat;
-//			carController.engineHeatRate = m_Configurations[m_Configurations.Count - 1].engineHeatMultiplier;
-//			carController.totalGears = m_Configurations[m_Configurations.Count - 1].totalGears;
-//			carController.gearShiftingDelay = m_Configurations[m_Configurations.Count - 1].gearShiftingDelay;
-//			carController.gearShiftingThreshold = m_Configurations[m_Configurations.Count - 1].gearShiftingThreshold;
-//			carController.clutchInertia = m_Configurations[m_Configurations.Count - 1].clutchInertia;
-//			carController.NGear = m_Configurations[m_Configurations.Count - 1].NGear;
-//			carController.launched = m_Configurations[m_Configurations.Count - 1].launched;
-//			carController.ABS = m_Configurations[m_Configurations.Count - 1].ABS;
-//			carController.TCS = m_Configurations[m_Configurations.Count - 1].TCS;
-//			carController.ESP = m_Configurations[m_Configurations.Count - 1].ESP;
-//			carController.steeringHelper = m_Configurations[m_Configurations.Count - 1].steeringHelper;
-//			carController.tractionHelper = m_Configurations[m_Configurations.Count - 1].tractionHelper;
-//			carController.applyCounterSteering = m_Configurations[m_Configurations.Count - 1].applyCounterSteering;
-//			carController.useNOS = m_Configurations[m_Configurations.Count - 1].useNOS;
-//			carController.useTurbo = m_Configurations[m_Configurations.Count - 1].useTurbo;
-//
-//		}
+		
 
 	}
 

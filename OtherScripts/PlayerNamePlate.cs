@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// this class manages the player name plate in order to initialize the player name for same team players
 public class PlayerNamePlate : MonoBehaviour {
 
     [SerializeField]
@@ -23,7 +23,6 @@ public class PlayerNamePlate : MonoBehaviour {
         }
         if (driver)
         {
-            print("hi");
             userName.text = driver.nickName;
             userName.color = driver.Color;
         }
@@ -33,7 +32,7 @@ public class PlayerNamePlate : MonoBehaviour {
 	void Update () {
         if (!enabled)
             return;
-
+        // name player plate keeps in same other players camera direction
         if (Camera.main)
         {
             m_Camera = Camera.main;

@@ -7,6 +7,7 @@ using System.Collections;
 
 namespace Prototype.NetworkLobby
 {
+    // connect to a specified server from lobbyServerList s
     public class LobbyServerEntry : MonoBehaviour 
     {
         public Text serverInfoText;

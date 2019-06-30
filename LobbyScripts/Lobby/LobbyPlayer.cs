@@ -7,7 +7,7 @@ using System.Collections;
 namespace Prototype.NetworkLobby
 {
     //Player entry in the lobby. Handle selecting color/setting name & getting ready for the game
-    //Any LobbyHook can then grab it and pass those value to the game player prefab (see the Pong Example in the Samples Scenes)
+    //Any LobbyHook can then grab it and pass those value to the game player prefab 
     public class LobbyPlayer : NetworkLobbyPlayer
     {
         static Color[] Colors = new Color[] { Color.magenta, Color.red, Color.cyan, Color.blue, Color.green, Color.yellow };
@@ -41,8 +41,6 @@ namespace Prototype.NetworkLobby
         static Color NotReadyColor = new Color(34.0f / 255.0f, 44 / 255.0f, 55.0f / 255.0f, 1.0f);
         static Color ReadyColor = new Color(0.0f, 204.0f / 255.0f, 204.0f / 255.0f, 1.0f);
         static Color TransparentColor = new Color(0, 0, 0, 0);
-        //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
-        //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
 
         private void Update()
         {
@@ -91,17 +89,8 @@ namespace Prototype.NetworkLobby
             {
                 LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
             }
-            //Rpctellother(x);
         }
-        /*[Client]
-        void Rpctellother(int x)
-        {
-            if(!isLocalPlayer && !isServer)
-            {
-                LobbyManager.s_Singleton.SetPlayerTypeLobby(this.GetComponent<NetworkIdentity>().connectionToClient, x);
-            }
-        }*/
-        /*****************************/
+        
         public void TeamSelect(int x)
         {
             if (!isLocalPlayer)
@@ -319,7 +308,7 @@ namespace Prototype.NetworkLobby
 
         public void OnReadyClicked()
         {
-            //if(LobbyPlayerList._instance.CheckInputValidation())
+            if(LobbyPlayerList._instance.CheckInputValidation())
                 SendReadyToBeginMessage();
                 Cmdtellother(value + CharacterSelection.instance.getIndex());
         }

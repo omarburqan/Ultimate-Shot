@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-
+// a specail canvas(Connecting...) after a connect request to  specified Host/Server
 namespace Prototype.NetworkLobby 
 {
     public class LobbyInfoPanel : MonoBehaviour

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Prototype.NetworkLobby
 {
+    // display all the servers that available now (opened servers(hosts))
     public class LobbyServerList : MonoBehaviour
     {
         public LobbyManager lobbyManager;
