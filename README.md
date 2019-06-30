@@ -1,7 +1,8 @@
 # Ultimate-Shot
 ### Introduction
-A multiplayer game which is made by Unity Engine and C# by using Microsoft visual studio, networking is done by using unity scripting API,
-which one of the players will be the server and the rest are client as normal.
+A multiplayer game which is made by Unity Engine and C# by using Microsoft visual studio, networking is done by using unity scripting API,which one of the players will be the server and the rest are client as normal.
+
+### Note: for this game we are using [Unity Services - Collaborate](https://unity3d.com/unity/features/collaborate) to sync our project with team members and we are using github only for main Scripts
 
 ## About the Game:
 The game in general is a compine between third person shooter(TPS) and a racing game which allows the shooter to free run in the map in order to accomplish his tasks(protect his team-mate and collect powers up ,points by killing the opposite shooters in the other teams).
