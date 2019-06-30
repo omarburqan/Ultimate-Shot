@@ -1,7 +1,7 @@
 
 # Ultimate-Shot
 
-### Note: <span style="color:orange;"> for this game we are using [Unity Services - Collaborate](https://unity3d.com/unity/features/collaborate) to sync our project with team members and we are using github only for main Scripts </span>
+### Note:  for this game we are using [Unity Services - Collaborate](https://unity3d.com/unity/features/collaborate) to sync our project with team members and we are using github only for main Scripts 
 
 ### Introduction
 A multiplayer game which is made by Unity Engine and C# by using Microsoft visual studio, networking is done by using unity scripting API,which one of the players will be the server and the rest are client as normal.
